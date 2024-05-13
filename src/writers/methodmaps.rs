@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, str::Utf8Error};
+use std::borrow::Borrow;
 
 use tree_sitter::Node;
 
@@ -7,7 +7,7 @@ use super::{
     variables::write_type, write_comment, write_node, Writer,
 };
 
-pub fn write_methodmap(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_methodmap(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let nb_lines: usize = usize::try_from(writer.settings.breaks_before_methodmap).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
@@ -63,7 +63,7 @@ pub fn write_methodmap(node: Node, writer: &mut Writer) -> Result<(), Utf8Error>
     Ok(())
 }
 
-fn write_methodmap_alias(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_methodmap_alias(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
@@ -92,7 +92,7 @@ fn write_methodmap_alias(node: Node, writer: &mut Writer) -> Result<(), Utf8Erro
     Ok(())
 }
 
-fn write_methodmap_native(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_methodmap_native(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
@@ -127,7 +127,7 @@ fn write_methodmap_native(node: Node, writer: &mut Writer) -> Result<(), Utf8Err
     Ok(())
 }
 
-fn write_methodmap_method(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_methodmap_method(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
@@ -169,7 +169,7 @@ fn write_methodmap_method(node: Node, writer: &mut Writer) -> Result<(), Utf8Err
     Ok(())
 }
 
-fn write_methodmap_property(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_methodmap_property(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
@@ -220,7 +220,7 @@ fn write_methodmap_property(node: Node, writer: &mut Writer) -> Result<(), Utf8E
     Ok(())
 }
 
-fn write_methodmap_property_alias(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_methodmap_property_alias(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
@@ -253,7 +253,7 @@ fn write_methodmap_property_alias(node: Node, writer: &mut Writer) -> Result<(),
     Ok(())
 }
 
-fn write_methodmap_property_method(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_methodmap_property_method(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
@@ -299,7 +299,7 @@ fn write_methodmap_property_method(node: Node, writer: &mut Writer) -> Result<()
     Ok(())
 }
 
-fn write_methodmap_property_setter(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_methodmap_property_setter(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {

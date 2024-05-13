@@ -62,7 +62,7 @@ impl Writer<'_> {
     }
 }
 
-pub fn write_comment(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_comment(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let prev_node = node.prev_named_sibling();
     if !prev_node.is_none() {
         let prev_node = prev_node.unwrap();
@@ -83,7 +83,7 @@ pub fn write_comment(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> 
     Ok(())
 }
 
-fn write_dynamic_array(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_dynamic_array(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     writer.output.push_str("new ");
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
@@ -97,7 +97,7 @@ fn write_dynamic_array(node: Node, writer: &mut Writer) -> Result<(), Utf8Error>
     Ok(())
 }
 
-fn write_dimension(node: Node, writer: &mut Writer, insert_space: bool) -> Result<(), Utf8Error> {
+fn write_dimension(node: Node, writer: &mut Writer, insert_space: bool) -> anyhow::Result<()> {
     let next_kind = next_sibling_kind(&node);
     writer.output.push_str("[]");
 
@@ -112,7 +112,7 @@ fn write_fixed_dimension(
     node: Node,
     writer: &mut Writer,
     insert_space: bool,
-) -> Result<(), Utf8Error> {
+) -> anyhow::Result<()> {
     let next_kind = next_sibling_kind(&node);
 
     let mut cursor = node.walk();
@@ -134,7 +134,7 @@ fn write_fixed_dimension(
     Ok(())
 }
 
-fn write_node(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_node(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     writer
         .output
         .push_str(node.utf8_text(writer.source)?.borrow());

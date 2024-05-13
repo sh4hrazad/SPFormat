@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, str::Utf8Error};
+use std::borrow::Borrow;
 
 use tree_sitter::Node;
 
@@ -10,14 +10,9 @@ use super::{
     write_dimension, write_fixed_dimension, write_node, Writer,
 };
 
-pub fn write_function_declaration(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_decl).unwrap();
+pub fn write_function_declaration(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_decl)?;
     let prev_kind = prev_sibling_kind(&node);
-
-    if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
-        // Insert two new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
-    }
 
     let mut cursor = node.walk();
 
@@ -48,12 +43,19 @@ pub fn write_function_declaration(node: Node, writer: &mut Writer) -> Result<(),
             }
         }
     }
+
     writer.breakl();
+
+    if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
+        for _ in 0..nb_lines {
+            writer.breakl();
+        }
+    }
 
     Ok(())
 }
 
-pub fn write_function_definition(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_function_definition(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
@@ -79,7 +81,7 @@ pub fn write_function_definition(node: Node, writer: &mut Writer) -> Result<(), 
     Ok(())
 }
 
-pub fn write_argument_declarations(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_argument_declarations(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {
@@ -104,7 +106,7 @@ pub fn write_argument_declarations(node: Node, writer: &mut Writer) -> Result<()
     Ok(())
 }
 
-fn write_argument_declaration(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_argument_declaration(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {
@@ -128,7 +130,7 @@ fn write_argument_declaration(node: Node, writer: &mut Writer) -> Result<(), Utf
     Ok(())
 }
 
-fn write_argument_type(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_argument_type(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {
@@ -149,7 +151,7 @@ fn write_argument_type(node: Node, writer: &mut Writer) -> Result<(), Utf8Error>
     Ok(())
 }
 
-pub fn write_function_visibility(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_function_visibility(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         write_node(&child, writer)?;

@@ -4,7 +4,7 @@ use super::{
     preproc::insert_break,
     write_comment, write_dimension, write_fixed_dimension, write_node, Writer,
 };
-use std::{borrow::Borrow, str::Utf8Error};
+use std::borrow::Borrow;
 
 use tree_sitter::Node;
 
@@ -17,7 +17,7 @@ use tree_sitter::Node;
 pub fn write_old_global_variable_declaration(
     node: &Node,
     writer: &mut Writer,
-) -> Result<(), Utf8Error> {
+) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     let should_break = should_break_declaration(&node)?;
@@ -74,7 +74,7 @@ pub fn write_old_global_variable_declaration(
 /// # Arguments
 ///
 /// * `node`   - The node which has the variable declarations.
-fn should_break_declaration(node: &Node) -> Result<bool, Utf8Error> {
+fn should_break_declaration(node: &Node) -> anyhow::Result<bool> {
     let mut cursor = node.walk();
 
     // Compute an estimated length of the declarations.
@@ -134,7 +134,7 @@ pub fn write_old_variable_declaration_statement(
     node: Node,
     writer: &mut Writer,
     do_indent: bool,
-) -> Result<(), Utf8Error> {
+) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     let should_break = should_break_declaration(&node)?;
@@ -202,7 +202,7 @@ pub fn write_old_variable_declaration_statement(
 ///
 /// * `node`   - The old variable declaration node to write.
 /// * `writer` - The writer object.
-fn write_old_variable_declaration(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_old_variable_declaration(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {

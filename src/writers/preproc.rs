@@ -1,5 +1,5 @@
 use super::{next_sibling_kind, next_sibling_start, write_comment, write_node, Writer};
-use std::{borrow::Borrow, str::Utf8Error};
+use std::borrow::Borrow;
 
 use tree_sitter::Node;
 
@@ -45,7 +45,7 @@ pub fn insert_break(node: &Node, writer: &mut Writer) {
 ///
 /// * `node`   - The preprocessor include node to write.
 /// * `writer` - The writer object.
-pub fn write_preproc_include(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_preproc_include(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {
@@ -71,7 +71,7 @@ pub fn write_preproc_include(node: &Node, writer: &mut Writer) -> Result<(), Utf
 ///
 /// * `node`   - The preprocessor define/macro node to write.
 /// * `writer` - The writer object.
-pub fn write_preproc_define(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_preproc_define(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {
@@ -99,7 +99,7 @@ pub fn write_preproc_define(node: &Node, writer: &mut Writer) -> Result<(), Utf8
 ///
 /// * `node`   - The preprocessor undef node to write.
 /// * `writer` - The writer object.
-pub fn write_preproc_undefine(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_preproc_undefine(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {
@@ -128,7 +128,7 @@ pub fn write_preproc_undefine(node: &Node, writer: &mut Writer) -> Result<(), Ut
 ///
 /// * `node`   - The preprocessor generic node to write.
 /// * `writer` - The writer object.
-pub fn write_preproc_generic(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_preproc_generic(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {
@@ -159,7 +159,7 @@ pub fn write_preproc_generic(node: &Node, writer: &mut Writer) -> Result<(), Utf
 ///
 /// * `node`   - The preprocessor symbol node to write.
 /// * `writer` - The writer object.
-pub fn write_preproc_symbol(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_preproc_symbol(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let kind = node.kind();
     match kind.borrow() {
         "preproc_endif" | "preproc_else" | "preproc_endinput" | "symbol" => {
@@ -179,7 +179,7 @@ pub fn write_preproc_symbol(node: &Node, writer: &mut Writer) -> Result<(), Utf8
 ///
 /// * `node`   - The preprocessor symbol node to write.
 /// * `writer` - The writer object.
-fn write_preproc_arg(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_preproc_arg(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let args = node.utf8_text(writer.source)?;
     writer.output.push_str(args.trim());
 

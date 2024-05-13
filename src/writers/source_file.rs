@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, str::Utf8Error};
+use std::borrow::Borrow;
 
 use tree_sitter::Node;
 
@@ -23,7 +23,7 @@ use super::{
     write_comment, Writer,
 };
 
-pub fn write_source_file(root_node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_source_file(root_node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = root_node.walk();
 
     for node in root_node.children(&mut cursor) {

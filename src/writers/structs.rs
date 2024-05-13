@@ -1,10 +1,10 @@
 use super::expressions::write_expression;
 use super::{write_comment, write_dimension, write_fixed_dimension, write_node, Writer};
-use std::{borrow::Borrow, str::Utf8Error};
+use std::borrow::Borrow;
 
 use tree_sitter::Node;
 
-pub fn write_struct_declaration(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_struct_declaration(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for sub_node in node.children(&mut cursor) {
@@ -32,7 +32,7 @@ pub fn write_struct_declaration(node: Node, writer: &mut Writer) -> Result<(), U
     Ok(())
 }
 
-fn write_struct_constructor(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_struct_constructor(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for sub_node in node.children(&mut cursor) {
@@ -63,7 +63,7 @@ fn write_struct_constructor(node: Node, writer: &mut Writer) -> Result<(), Utf8E
     Ok(())
 }
 
-fn write_struct_field_value(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_struct_field_value(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     let mut key = true;
     for sub_node in node.children(&mut cursor) {
@@ -98,7 +98,7 @@ fn write_struct_field_value(node: Node, writer: &mut Writer) -> Result<(), Utf8E
     Ok(())
 }
 
-pub fn write_struct(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_struct(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for sub_node in node.children(&mut cursor) {
         match sub_node.kind().borrow() {
@@ -124,7 +124,7 @@ pub fn write_struct(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
     Ok(())
 }
 
-fn write_struct_field(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_struct_field(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     writer
         .output
         .push_str(writer.indent_string.repeat(writer.indent).as_str());

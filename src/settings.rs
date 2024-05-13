@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
     pub breaks_before_function_decl: u32,
     pub breaks_before_function_def: u32,

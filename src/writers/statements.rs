@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, str::Utf8Error};
+use std::borrow::Borrow;
 
 use tree_sitter::Node;
 
@@ -12,7 +12,7 @@ pub fn write_statement(
     writer: &mut Writer,
     do_indent: bool,
     do_break: bool,
-) -> Result<(), Utf8Error> {
+) -> anyhow::Result<()> {
     let sp = node.end_position().row();
     let next_sibling = node.next_sibling();
 
@@ -80,7 +80,7 @@ pub fn write_statement(
     Ok(())
 }
 
-fn write_for_loop(node: Node, writer: &mut Writer, do_indent: bool) -> Result<(), Utf8Error> {
+fn write_for_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut end_condition_reached = false;
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
@@ -138,7 +138,7 @@ fn write_for_loop(node: Node, writer: &mut Writer, do_indent: bool) -> Result<()
     Ok(())
 }
 
-fn write_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> Result<(), Utf8Error> {
+fn write_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut end_condition_reached = false;
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
@@ -190,7 +190,7 @@ fn write_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> Result<
     Ok(())
 }
 
-fn write_do_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> Result<(), Utf8Error> {
+fn write_do_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut in_condition = false;
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
@@ -247,11 +247,7 @@ fn write_do_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> Resu
     Ok(())
 }
 
-fn write_switch_statement(
-    node: Node,
-    writer: &mut Writer,
-    do_indent: bool,
-) -> Result<(), Utf8Error> {
+fn write_switch_statement(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -297,7 +293,7 @@ fn write_switch_statement(
     Ok(())
 }
 
-fn write_switch_case(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_switch_case(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -331,7 +327,7 @@ fn write_switch_case(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
     Ok(())
 }
 
-fn write_switch_default_case(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_switch_default_case(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -362,7 +358,7 @@ fn write_switch_default_case(node: Node, writer: &mut Writer) -> Result<(), Utf8
     Ok(())
 }
 
-fn write_switch_case_values(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_switch_case_values(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -383,11 +379,7 @@ fn write_switch_case_values(node: Node, writer: &mut Writer) -> Result<(), Utf8E
     Ok(())
 }
 
-fn write_return_statement(
-    node: Node,
-    writer: &mut Writer,
-    do_indent: bool,
-) -> Result<(), Utf8Error> {
+fn write_return_statement(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -413,11 +405,7 @@ fn write_return_statement(
     Ok(())
 }
 
-fn write_delete_statement(
-    node: Node,
-    writer: &mut Writer,
-    do_indent: bool,
-) -> Result<(), Utf8Error> {
+fn write_delete_statement(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -443,7 +431,7 @@ fn write_delete_statement(
     Ok(())
 }
 
-fn write_expression_statement(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_expression_statement(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -466,7 +454,7 @@ fn write_condition_statement(
     node: Node,
     writer: &mut Writer,
     do_indent: bool,
-) -> Result<(), Utf8Error> {
+) -> anyhow::Result<()> {
     let mut out_of_condition = false;
     let mut else_statement = false;
     let mut cursor = node.walk();
@@ -532,7 +520,7 @@ fn write_condition_statement(
     Ok(())
 }
 
-pub fn write_block(node: Node, writer: &mut Writer, do_indent: bool) -> Result<(), Utf8Error> {
+pub fn write_block(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {

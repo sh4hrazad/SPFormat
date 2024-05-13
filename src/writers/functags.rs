@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, str::Utf8Error};
+use std::borrow::Borrow;
 
 use tree_sitter::Node;
 
@@ -7,7 +7,7 @@ use super::{
     prev_sibling_kind, write_comment, write_node, Writer,
 };
 
-pub fn write_functag(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_functag(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_decl).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
@@ -41,7 +41,7 @@ pub fn write_functag(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
     Ok(())
 }
 
-pub fn write_funcenum(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_funcenum(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_decl).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
@@ -92,7 +92,7 @@ pub fn write_funcenum(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> 
     Ok(())
 }
 
-fn write_funcenum_member(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+fn write_funcenum_member(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     writer.write_indent();

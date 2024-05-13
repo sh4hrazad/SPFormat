@@ -2,7 +2,7 @@ use super::{
     expressions::write_expression, next_sibling_kind, node_len, preproc::insert_break,
     write_comment, write_dimension, write_dynamic_array, write_fixed_dimension, write_node, Writer,
 };
-use std::{borrow::Borrow, str::Utf8Error};
+use std::borrow::Borrow;
 
 use tree_sitter::Node;
 
@@ -12,10 +12,7 @@ use tree_sitter::Node;
 ///
 /// * `node`   - The global variable declaration node to write.
 /// * `writer` - The writer object.
-pub fn write_global_variable_declaration(
-    node: &Node,
-    writer: &mut Writer,
-) -> Result<(), Utf8Error> {
+pub fn write_global_variable_declaration(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     let max_name_length = get_max_variable_name_length(&node)?;
@@ -77,7 +74,7 @@ pub fn write_global_variable_declaration(
 ///
 /// * `node`   - The type node to write.
 /// * `writer` - The writer object.
-pub fn write_type(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_type(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let next_kind = next_sibling_kind(&node);
 
     write_node(&node, writer)?;
@@ -95,7 +92,7 @@ pub fn write_type(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
 /// # Arguments
 ///
 /// * `node`   - The node which has the variable declarations.
-fn get_max_variable_name_length(node: &Node) -> Result<usize, Utf8Error> {
+fn get_max_variable_name_length(node: &Node) -> anyhow::Result<usize> {
     let mut cursor = node.walk();
 
     // Compute an estimated length of the declarations.
@@ -155,7 +152,7 @@ pub fn write_variable_declaration_statement(
     node: Node,
     writer: &mut Writer,
     do_indent: bool,
-) -> Result<(), Utf8Error> {
+) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     let max_name_length = get_max_variable_name_length(&node)?;
@@ -230,7 +227,7 @@ fn write_variable_declaration(
     node: &Node,
     writer: &mut Writer,
     max_name_length: usize,
-) -> Result<(), Utf8Error> {
+) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     // Keep track of the name length (including dimensions) in order

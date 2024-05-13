@@ -3,10 +3,10 @@ use super::{
     Writer,
 };
 
-use std::{borrow::Borrow, str::Utf8Error};
+use std::borrow::Borrow;
 use tree_sitter::Node;
 
-pub fn write_assertion(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_assertion(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {

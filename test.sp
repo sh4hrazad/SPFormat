@@ -14,7 +14,6 @@ Handle gH_SpeedHUD = null;
 Handle gH_ShowSpeedCookie;
 bool gB_ShowSpeed[MAXPLAYERS + 1] = { true, ... };
 
-
 public void OnPluginStart() {
 	gH_SpeedHUD = CreateHudSynchronizer()
 
@@ -94,3 +93,4 @@ void SetClientCookieBool(int client, Handle cookie, bool value) {
 
 	SetClientCookie(client, cookie, sValue)
 }
+
