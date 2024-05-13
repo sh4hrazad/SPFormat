@@ -13,8 +13,7 @@ use settings::Settings;
 #[cfg(not(target_arch = "wasm32"))]
 pub fn format_string(input: &String, settings: &Settings) -> anyhow::Result<String> {
     let language = tree_sitter_sourcepawn::language().into();
-    let output = format_string_language(&input, language, settings)
-        .expect("An error has occured while generating the Sourcepawn code.");
+    let output = format_string_language(&input, language, settings)?;
 
     Ok(output)
 }

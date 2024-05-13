@@ -24,8 +24,6 @@ fn main() -> Result<(), anyhow::Error> {
 
     let settings = build_settings_from_args()?;
 
-    println!("{:#?}", settings);
-
     for file_name in &args {
         let source = match fs::read_to_string(&file_name) {
             Ok(src) => src,
@@ -34,7 +32,14 @@ fn main() -> Result<(), anyhow::Error> {
 
         let output = format_string(&source, &settings)?;
 
-        fs::write(&file_name, output)?;
+        if !output.is_empty() {
+            fs::write(&file_name, output)?;
+        } else {
+            println!(
+                "writer got rekt! potential syntax error in file: {}",
+                file_name
+            );
+        }
     }
 
     println!("Press any key to exit...");

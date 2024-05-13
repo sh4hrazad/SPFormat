@@ -13,12 +13,15 @@ pub fn format_string_language(
 ) -> anyhow::Result<String> {
     let mut parser = parser::sourcepawn(&language)?;
     let parsed = parser.parse(&input, None)?.unwrap();
+
     if parsed.root_node().has_error() {
-        // Do not try to format, there is an error in the syntax.
-        return Ok("".to_string());
+        // todo what's the error?
+        return Err(anyhow::Error::msg("internal writer error or something"));
     }
+
     #[cfg(debug_assertions)]
     println!("{}", parsed.root_node().to_sexp());
+
     let mut writer = writers::Writer {
         output: String::new(),
         source: input.as_bytes(),
@@ -31,8 +34,10 @@ pub fn format_string_language(
         _expression_kinds: HashSet::new(),
         _literal_kinds: HashSet::new(),
     };
+
     build_writer(&mut writer);
     write_source_file(parsed.root_node(), &mut writer)?;
+
     Ok(writer.output)
 }
 

@@ -5,7 +5,6 @@ use self::{expressions::write_expression, preproc::insert_break};
 use std::{
     borrow::{Borrow, Cow},
     collections::HashSet,
-    str::Utf8Error,
 };
 use tree_sitter::{Language, Node, Point};
 
