@@ -24,7 +24,7 @@ pub fn write_statement(
         "old_variable_declaration_statement" => {
             write_old_variable_declaration_statement(node, writer, do_indent)?
         }
-        "for_loop" => write_for_loop(node, writer, do_indent)?,
+        "for_statement" => write_for_loop(node, writer, do_indent)?,
         "while_loop" => write_while_loop(node, writer, do_indent)?,
         "do_while_loop" => write_do_while_loop(node, writer, do_indent)?,
         "break_statement" => {

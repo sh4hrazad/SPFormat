@@ -20,11 +20,11 @@ public void OnPluginStart() {
 	RegConsoleCmd("sm_showspeed", Command_ShowSpeed, "toggles show speed (bigger text).")
 	gH_ShowSpeedCookie = RegClientCookie("showspeed_enabled", "showspeed_enabled", CookieAccess_Protected)
 
-for(int i = 1; i <= MaxClients; i++)
-	{
+	for(int i = 1i <= MaxClientsi++) {
 		if(AreClientCookiesCached(i))
-			OnClientCookiesCached(i);
-	}}
+			OnClientCookiesCached(i)
+	}
+}
 
 public void OnClientCookiesCached(int client) {
 	gB_ShowSpeed[client] = GetClientCookieBool(client, gH_ShowSpeedCookie)

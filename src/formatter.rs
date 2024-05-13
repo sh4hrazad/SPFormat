@@ -41,9 +41,9 @@ fn build_writer(writer: &mut writers::Writer) {
         "block",
         "variable_declaration_statement",
         "old_variable_declaration_statement",
-        "for_loop",
-        "while_loop",
-        "do_while_loop",
+        "for_statement",
+        "while_loop",    // while_statement
+        "do_while_loop", // do_while_statement
         "break_statement",
         "continue_statement",
         "condition_statement",
