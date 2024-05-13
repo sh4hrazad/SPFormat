@@ -1,0 +1,14 @@
+breaks_before_function_decl = 1
+breaks_before_function_def = 1
+breaks_before_enum = 1
+breaks_before_enum_struct = 1
+breaks_before_methodmap = 1
+brace_wrapping_before_function = false
+brace_wrapping_before_loop = false
+brace_wrapping_before_condition = false
+brace_wrapping_before_enum_struct = false
+brace_wrapping_before_enum = false
+brace_wrapping_before_typeset = false
+brace_wrapping_before_funcenum = false
+brace_wrapping_before_methodmap = false
+brace_wrapping_before_methodmap_property = false

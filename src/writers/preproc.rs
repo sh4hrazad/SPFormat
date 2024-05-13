@@ -78,14 +78,12 @@ pub fn write_preproc_define(node: &Node, writer: &mut Writer) -> Result<(), Utf8
         let kind = child.kind();
         match kind.borrow() {
             "#define" => writer.output.push_str("#define "),
-            "symbol" => write_node(&child, writer)?,
+            "symbol" | "identifier" | "macro_param" | "(" | ")" => write_node(&child, writer)?,
             "preproc_arg" => {
                 writer.output.push(' ');
                 write_preproc_arg(&child, writer)?;
             }
             "," => writer.output.push_str(", "),
-            "(" | ")" => write_node(&child, writer)?,
-            "macro_param" => write_node(&child, writer)?,
             _ => println!("Unexpected kind {} in write_preproc_define.", kind),
         }
     }

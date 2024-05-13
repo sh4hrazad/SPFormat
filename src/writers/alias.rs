@@ -29,7 +29,7 @@ pub fn write_alias_declaration(node: Node, writer: &mut Writer) -> Result<(), Ut
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "function_visibility" => write_function_visibility(child, writer)?,
+            "function_visibility" => write_function_visibility(&child, writer)?,
             "type" => write_type(&child, writer)?,
             "old_type" => write_old_type(child, writer)?,
             "dimension" => write_dimension(child, writer, true)?,
@@ -76,7 +76,7 @@ pub fn write_alias_assignment(node: Node, writer: &mut Writer) -> Result<(), Utf
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "function_definition_type" => write_function_visibility(child, writer)?,
+            "function_definition_type" => write_function_visibility(&child, writer)?,
             "type" => write_type(&child, writer)?,
             "old_type" => write_old_type(child, writer)?,
             "symbol" => write_node(&child, writer)?,

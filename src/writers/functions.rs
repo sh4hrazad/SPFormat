@@ -22,12 +22,18 @@ pub fn write_function_declaration(node: Node, writer: &mut Writer) -> Result<(),
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {
-        match child.kind().borrow() {
-            "function_visibility" => write_function_visibility(child, writer)?,
-            "type" => write_type(&child, writer)?,
+        let kind = child.kind();
+
+        match kind.borrow() {
+            "visibility" => {
+                write_function_visibility(&child, writer)?;
+            }
+            "type" => {
+                write_type(&child, writer)?;
+            }
             "dimension" => write_dimension(child, writer, true)?,
-            "argument_declarations" => write_argument_declarations(child, writer)?,
-            "symbol" => write_node(&child, writer)?,
+            "parameter_declarations" => write_argument_declarations(child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "block" => {
                 if writer.settings.brace_wrapping_before_function {
                     writer.breakl();
@@ -37,7 +43,9 @@ pub fn write_function_declaration(node: Node, writer: &mut Writer) -> Result<(),
                     write_block(child, writer, false)?;
                 }
             }
-            _ => write_statement(child, writer, false, false)?,
+            _ => {
+                write_statement(child, writer, false, false)?;
+            }
         }
     }
     writer.breakl();
@@ -57,8 +65,9 @@ pub fn write_function_definition(node: Node, writer: &mut Writer) -> Result<(), 
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {
+        println!("vis: {}", child.kind().borrow() as &str);
         match child.kind().borrow() {
-            "function_definition_type" => write_function_visibility(child, writer)?,
+            "function_definition_type" => write_function_visibility(&child, writer)?,
             "type" => write_type(&child, writer)?,
             "dimension" => write_dimension(child, writer, true)?,
             "argument_declarations" => write_argument_declarations(child, writer)?,
@@ -140,7 +149,7 @@ fn write_argument_type(node: Node, writer: &mut Writer) -> Result<(), Utf8Error>
     Ok(())
 }
 
-pub fn write_function_visibility(node: Node, writer: &mut Writer) -> Result<(), Utf8Error> {
+pub fn write_function_visibility(node: &Node, writer: &mut Writer) -> Result<(), Utf8Error> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         write_node(&child, writer)?;

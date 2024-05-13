@@ -36,6 +36,10 @@ pub fn write_global_variable_declaration(
                 writer.output.push(' ');
                 type_length += node_len(&child) + 1;
             }
+            // "identifier" => {
+            //     write_identifier(&child, writer)?;
+            //     type_length += node_len(&child);
+            // }
             "comment" => {
                 write_comment(&child, writer)?;
                 if max_name_length > 0 {
@@ -204,7 +208,7 @@ pub fn write_variable_declaration_statement(
                 }
             }
             ";" => continue,
-            _ => println!("Unexpected kind {} in write_global_variable.", kind),
+            _ => println!("Unexpected kind {} in write_variable_variable.", kind),
         }
     }
 
@@ -236,7 +240,8 @@ fn write_variable_declaration(
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "symbol" => {
+            // "symbol" => {
+            "identifier" | "call_expression" => {
                 write_node(&child, writer)?;
                 name_length += node_len(&child);
             }
@@ -261,7 +266,7 @@ fn write_variable_declaration(
                 if writer.is_expression(&kind) {
                     write_expression(child, writer)?
                 } else {
-                    println!("Unexpected kind {} in write_global_variable.", kind);
+                    println!("Unexpected kind {} in write_variable_declaration.", kind);
                 }
             }
         }

@@ -8,8 +8,9 @@ pub fn write_struct_declaration(node: Node, writer: &mut Writer) -> Result<(), U
     let mut cursor = node.walk();
 
     for sub_node in node.children(&mut cursor) {
-        match sub_node.kind().borrow() {
-            "public" | "symbol" => {
+        let kind = sub_node.kind();
+        match kind.borrow() {
+            "public" | /* "symbol" | */ "identifier" => {
                 write_node(&sub_node, writer)?;
                 writer.output.push(' ');
             }
@@ -21,7 +22,10 @@ pub fn write_struct_declaration(node: Node, writer: &mut Writer) -> Result<(), U
                 writer.output.push_str("=\n");
             }
             "struct_constructor" => write_struct_constructor(sub_node, writer)?,
-            "\n" | _ => {}
+            "\n" => {}
+            _ => {
+                println!("Unexpected kind {} in write_struct_declaration.", kind);
+            }
         }
     }
 
@@ -68,7 +72,8 @@ fn write_struct_field_value(node: Node, writer: &mut Writer) -> Result<(), Utf8E
                 writer.output.push('\t');
                 write_comment(&sub_node, writer)?;
             }
-            "symbol" => {
+            // "symbol" => {
+            "identifier" => {
                 if key {
                     key = false;
                     writer
@@ -82,6 +87,7 @@ fn write_struct_field_value(node: Node, writer: &mut Writer) -> Result<(), Utf8E
                 }
             }
             "=" => writer.output.push_str(" = "),
+            // value
             _ => {
                 write_expression(sub_node, writer)?;
                 writer.output.push_str(",\n")
