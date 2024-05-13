@@ -25,7 +25,7 @@ pub fn write_enum_struct(node: Node, writer: &mut Writer) -> anyhow::Result<()> 
                 write_node(&child, writer)?;
                 writer.output.push(' ')
             }
-            "symbol" => write_node(&child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "{" => {
                 if writer.settings.brace_wrapping_before_enum_struct {
                     writer.breakl();
@@ -73,7 +73,7 @@ fn write_enum_struct_field(node: Node, writer: &mut Writer) -> anyhow::Result<()
         let kind = child.kind();
         match kind.borrow() {
             "type" => write_type(&child, writer)?,
-            "symbol" => write_node(&child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "fixed_dimension" => write_fixed_dimension(child, writer, true)?,
             ";" => write_node(&child, writer)?,
             _ => {
@@ -103,7 +103,7 @@ fn write_enum_struct_method(node: Node, writer: &mut Writer) -> anyhow::Result<(
         let kind = child.kind();
         match kind.borrow() {
             "type" => write_type(&child, writer)?,
-            "symbol" => write_node(&child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "argument_declarations" => write_argument_declarations(child, writer)?,
             "block" => {
                 if writer.settings.brace_wrapping_before_function {

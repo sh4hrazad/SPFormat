@@ -1,12 +1,12 @@
+#![cfg(not(target_arch = "wasm32"))]
+
 use std::env::args;
-#[cfg(not(target_arch = "wasm32"))]
 use std::fs;
 
 use sp_format::format_string;
 use sp_format::settings::Settings;
 
-#[cfg(not(target_arch = "wasm32"))]
-pub fn build_settings_from_args() -> Result<Settings, anyhow::Error> {
+pub fn build_settings_from_args() -> anyhow::Result<Settings> {
     let str = fs::read_to_string("sp_format.toml")?;
 
     let toml = toml::from_str::<Settings>(&str)?;
@@ -14,8 +14,7 @@ pub fn build_settings_from_args() -> Result<Settings, anyhow::Error> {
     Ok(toml)
 }
 
-#[cfg(not(target_arch = "wasm32"))]
-fn main() -> Result<(), anyhow::Error> {
+fn main() -> anyhow::Result<()> {
     let args = args().skip(1).collect::<Vec<String>>();
 
     if args.is_empty() {

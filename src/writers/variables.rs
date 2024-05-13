@@ -251,11 +251,12 @@ fn write_variable_declaration(
                 name_length += 2;
             }
             "=" => {
-                if max_name_length > 0 {
-                    writer
-                        .output
-                        .push_str(" ".repeat(max_name_length - name_length).as_str());
-                }
+                // todo
+                // if max_name_length > 0 {
+                //     writer
+                //         .output
+                //         .push_str(" ".repeat(max_name_length - name_length).as_str());
+                // }
                 writer.output.push_str(" = ");
             }
             "dynamic_array" => write_dynamic_array(child, writer)?,

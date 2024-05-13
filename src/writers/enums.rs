@@ -89,7 +89,7 @@ fn write_enum_entry(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "builtin_type" | "symbol" => write_node(&child, writer)?,
+            "builtin_type" | "symbol" | "identifier" => write_node(&child, writer)?,
             ":" => writer.output.push_str(": "),
             "fixed_dimension" => write_fixed_dimension(child, writer, true)?,
             "=" => writer.output.push_str(" = "),

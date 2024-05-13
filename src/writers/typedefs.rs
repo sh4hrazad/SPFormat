@@ -101,7 +101,7 @@ fn write_typedef_expression(node: Node, writer: &mut Writer) -> anyhow::Result<(
             "type" => write_type(&child, writer)?,
             "dimension" => write_dimension(child, writer, false)?,
             "fixed_dimension" => write_fixed_dimension(child, writer, false)?,
-            "argument_declarations" => write_argument_declarations(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(child, writer)?,
             "(" | ")" => continue,
             _ => {
                 println!("Unexpected kind {} in write_typedef_expression.", kind);
