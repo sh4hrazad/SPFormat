@@ -15,34 +15,45 @@ pub fn write_statement(
 ) -> anyhow::Result<()> {
     let sp = node.end_position().row();
     let next_sibling = node.next_sibling();
+    let kind = node.kind();
 
-    match node.kind().borrow() {
+    let maybe_has_semicolon = !vec![
+        "block",
+        "for_statement",
+        "while_loop",
+        "condition_statement",
+        "switch_statement",
+    ]
+    .contains(&kind.as_ref());
+
+    match kind.borrow() {
+        // these may not need ; at the end
         "block" => write_block(&node, writer, do_indent)?,
+        "for_statement" => write_for_loop(&node, writer, do_indent)?,
+        "while_loop" => write_while_loop(&node, writer, do_indent)?,
+        "condition_statement" => write_condition_statement(&node, writer, do_indent)?,
+        "switch_statement" => write_switch_statement(&node, writer, do_indent)?,
+
+        // and these may need
         "variable_declaration_statement" => {
             write_variable_declaration_statement(&node, writer, do_indent)?
         }
         "old_variable_declaration_statement" => {
             write_old_variable_declaration_statement(&node, writer, do_indent)?
         }
-        "for_statement" => write_for_loop(&node, writer, do_indent)?,
-        "while_loop" => write_while_loop(&node, writer, do_indent)?,
         "do_while_loop" => write_do_while_loop(&node, writer, do_indent)?,
         "break_statement" => {
             if do_indent {
                 writer.write_indent();
             }
             writer.output.push_str("break");
-            writer.output.push(';');
         }
         "continue_statement" => {
             if do_indent {
                 writer.write_indent();
             }
             writer.output.push_str("continue");
-            writer.output.push(';');
         }
-        "condition_statement" => write_condition_statement(&node, writer, do_indent)?,
-        "switch_statement" => write_switch_statement(&node, writer, do_indent)?,
         "return_statement" => write_return_statement(&node, writer, do_indent)?,
         "delete_statement" => write_delete_statement(&node, writer, do_indent)?,
         "expression_statement" => {
@@ -51,8 +62,16 @@ pub fn write_statement(
             }
             write_expression_statement(&node, writer)?
         }
-        _ => write_node(&node, writer)?,
+        _ => {
+            println!("Unexpected kind {} in write_statement.", kind);
+            write_node(&node, writer)?;
+        }
     }
+
+    if maybe_has_semicolon && writer.semicolon {
+        writer.output.push_str(";");
+    }
+
     if do_break {
         if next_sibling.is_none() {
             writer.breakl();
@@ -81,10 +100,13 @@ pub fn write_statement(
 }
 
 fn write_for_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
-    let mut end_condition_reached = false;
+    let mut end_of_conditions_reached = false;
+    let mut got_condition_expr = false;
     let mut cursor = node.walk();
+
     for child in node.children(&mut cursor) {
         let kind = child.kind();
+
         match kind.borrow() {
             "for" => {
                 if do_indent {
@@ -94,21 +116,19 @@ fn write_for_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::
             }
             "(" => write_node(&child, writer)?,
             ")" => {
-                end_condition_reached = true;
+                end_of_conditions_reached = true;
                 write_node(&child, writer)?;
             }
-            "assignment_expression" => write_expression(&child, writer)?,
-            ";" => writer.output.push(';'),
-            "," => writer.output.push_str(", "),
             _ => {
                 if writer.is_statement(&kind) {
-                    if !end_condition_reached {
-                        if writer.output.ends_with(";") {
-                            writer.output.push(' ');
-                        }
+                    // an initializer
+                    if !end_of_conditions_reached {
                         write_statement(&child, writer, false, false)?;
+
                         continue;
                     }
+
+                    // something to do in for loop
                     if kind == "block" {
                         if writer.settings.brace_wrapping.before_loop {
                             writer.breakl();
@@ -124,11 +144,20 @@ fn write_for_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::
                         writer.indent -= 1;
                     }
                 } else if writer.is_expression(&kind) {
+                    // condition or iteration
                     if writer.output.ends_with(';') {
                         writer.output.push(' ');
                     }
+
                     write_expression(&child, writer)?;
+
+                    if !got_condition_expr {
+                        writer.output.push_str("; ");
+                        got_condition_expr = true;
+                    }
                 } else {
+                    // ?
+                    println!("Unexpected kind {} in write_for_loop.", kind);
                     write_node(&child, writer)?;
                 }
             }

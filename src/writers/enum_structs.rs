@@ -76,11 +76,10 @@ fn write_enum_struct_field(node: &Node, writer: &mut Writer) -> anyhow::Result<(
             "identifier" => write_node(&child, writer)?,
             "fixed_dimension" => write_fixed_dimension(&child, writer, true)?,
             ";" => write_node(&child, writer)?,
-            _ => {
-                println!("Unexpected kind {} in write_enum_struct_field.", kind);
-            }
+            _ => println!("Unexpected kind {} in write_enum_struct_field.", kind),
         }
     }
+
     writer.breakl();
 
     Ok(())

@@ -1,12 +1,13 @@
-use crate::settings::Settings;
-
-use self::{expressions::write_expression, preproc::insert_break};
-
 use std::{
     borrow::{Borrow, Cow},
     collections::HashSet,
 };
+
 use tree_sitter::{Language, Node, Point};
+
+use crate::settings::Settings;
+
+use self::{expressions::write_expression, preproc::insert_break};
 
 pub mod alias;
 pub mod assertions;
@@ -32,10 +33,11 @@ pub struct Writer<'a> {
     pub indent: usize,
     pub indent_string: String,
     pub skip: u8,
+    pub semicolon: bool,
     pub settings: &'a Settings,
-    pub _statement_kinds: HashSet<String>,
-    pub _expression_kinds: HashSet<String>,
-    pub _literal_kinds: HashSet<String>,
+    pub statement_kinds: HashSet<String>,
+    pub expression_kinds: HashSet<String>,
+    pub literal_kinds: HashSet<String>,
 }
 
 impl Writer<'_> {
@@ -48,23 +50,25 @@ impl Writer<'_> {
         self.output.push('\n');
     }
 
-    fn is_statement(&mut self, kind: &Cow<str>) -> bool {
-        return self._statement_kinds.contains(&kind.to_string());
+    fn is_statement(&self, kind: &Cow<str>) -> bool {
+        return self.statement_kinds.contains(&kind.to_string());
     }
 
-    fn is_expression(&mut self, kind: &Cow<str>) -> bool {
-        return self._expression_kinds.contains(&kind.to_string()) || self.is_literal(kind);
+    fn is_expression(&self, kind: &Cow<str>) -> bool {
+        return self.expression_kinds.contains(&kind.to_string()) || self.is_literal(kind);
     }
 
-    fn is_literal(&mut self, kind: &Cow<str>) -> bool {
-        return self._literal_kinds.contains(&kind.to_string());
+    fn is_literal(&self, kind: &Cow<str>) -> bool {
+        return self.literal_kinds.contains(&kind.to_string());
     }
 }
 
 pub fn write_comment(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let prev_node = node.prev_named_sibling();
+
     if !prev_node.is_none() {
         let prev_node = prev_node.unwrap();
+
         if node.start_position().row() == prev_node.end_position().row() {
             // Previous node is on the same line, simply add a tab.
             writer.output.push_str(writer.indent_string.as_str());
@@ -74,8 +78,9 @@ pub fn write_comment(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
         }
     }
 
-    let text = node.utf8_text(writer.source)?;
-    writer.output.push_str(&text.trim());
+    writer
+        .output
+        .push_str(node.utf8_text(writer.source)?.trim());
 
     insert_break(&node, writer);
 
@@ -84,7 +89,9 @@ pub fn write_comment(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
 
 fn write_dynamic_array(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     writer.output.push_str("new ");
+
     let mut cursor = node.walk();
+
     for child in node.children(&mut cursor) {
         match child.kind().borrow() {
             "type" => write_node(&child, writer)?,
@@ -98,6 +105,7 @@ fn write_dynamic_array(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
 
 fn write_dimension(node: &Node, writer: &mut Writer, insert_space: bool) -> anyhow::Result<()> {
     let next_kind = next_sibling_kind(&node);
+
     writer.output.push_str("[]");
 
     if insert_space && next_kind != "dimension" && next_kind != "fixed_dimension" {
@@ -124,6 +132,7 @@ fn write_fixed_dimension(
             _ => write_expression(&child, writer)?,
         }
     }
+
     writer.output.push(']');
 
     if insert_space && next_kind != "dimension" && next_kind != "fixed_dimension" {
@@ -143,34 +152,42 @@ fn write_node(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
 
 fn next_sibling_kind(node: &Node) -> String {
     let next_node = node.next_sibling();
+
     if next_node.is_none() {
         return String::from("");
     }
+
     return String::from(next_node.unwrap().kind());
 }
 
 fn prev_sibling_kind(node: &Node) -> String {
     let prev_node = node.prev_sibling();
+
     if prev_node.is_none() {
         return String::from("");
     }
+
     return String::from(prev_node.unwrap().kind());
 }
 
 fn next_sibling_start(node: &Node) -> Option<Point> {
     let next_node = node.next_sibling();
+
     if next_node.is_none() {
         return None;
     }
+
     return Some(next_node.unwrap().start_position());
 }
 
 #[allow(dead_code)]
 fn prev_sibling_end(node: &Node) -> Option<Point> {
     let prev_node = node.prev_sibling();
+
     if prev_node.is_none() {
         return None;
     }
+
     return Some(prev_node.unwrap().end_position());
 }
 

@@ -22,7 +22,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     let settings = build_settings_from_args()?;
-    
+
     println!("{:#?}", settings);
 
     for file_name in &args {
@@ -35,7 +35,7 @@ fn main() -> anyhow::Result<()> {
 
         fs::write(&file_name, output)?;
 
-        println!("{}", &file_name);
+        println!("reformatted: {}", &file_name);
     }
 
     anyhow::Ok(())

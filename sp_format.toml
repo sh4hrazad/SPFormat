@@ -1,18 +1,39 @@
+use_space = true
+space_size = 4
+
+# Number of empty lines to insert...
 [break]
+# ...after a function declaration.
 after_function_decl = 1
+# ...before a function definition.
 before_function_def = 1
+# ...before an enum declaration.
 before_enum = 1
+# ...before an enum struct declaration.
 before_enum_struct = 1
+# ...before a methodmap declaration.
 before_methodmap = 1
 
+# Whether to break...
 [brace_wrapping]
+# ...before a function declaration brace.
 before_function = false
+# ...before a loop statement brace.
 before_loop = false
+# ...before a condition statement brace.
 before_condition = false
+# ...before an enum struct declaration brace.
 before_enum_struct = false
+# ...before an enum declaration brace.
 before_enum = false
+# ...before a typeset declaration brace.
 before_typeset = false
+# ...before a funcenum declaration brace.
 before_funcenum = false
+# ...before a methodmap declaration brace.
 before_methodmap = false
+# ...before a methodmap property declaration brace.
 before_methodmap_property = false
+# ...before a struct constructor brace.
 before_struct_ctor = false
+

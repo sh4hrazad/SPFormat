@@ -1,7 +1,8 @@
-use super::{next_sibling_kind, next_sibling_start, write_comment, write_node, Writer};
 use std::borrow::Borrow;
 
 use tree_sitter::Node;
+
+use super::{next_sibling_kind, next_sibling_start, write_comment, write_node, Writer};
 
 /// Check if there is an inline comment after the statement and don't
 /// insert a line break if there is. Otherwise, insert a line break, and
@@ -133,12 +134,16 @@ pub fn write_preproc_generic(node: &Node, writer: &mut Writer) -> anyhow::Result
 
     for child in node.children(&mut cursor) {
         let kind = child.kind();
+
         match kind.borrow() {
             "#if" | "#elseif" | "#error" | "#warning" | "#pragma" | "#assert" => {
                 write_node(&child, writer)?;
                 writer.output.push(' ');
             }
-            "preproc_arg" => write_preproc_arg(&child, writer)?,
+            // got identifier and value together for preproc_arg here
+            "preproc_arg" => {
+                write_preproc_arg(&child, writer)?;
+            }
             "comment" => write_comment(&child, writer)?,
             _ => println!("Unexpected kind {} in write_preproc_generic.", kind),
         }
@@ -181,7 +186,13 @@ pub fn write_preproc_symbol(node: &Node, writer: &mut Writer) -> anyhow::Result<
 /// * `writer` - The writer object.
 fn write_preproc_arg(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let args = node.utf8_text(writer.source)?;
-    writer.output.push_str(args.trim());
+    let args = args.trim();
+
+    if args == "semicolon 1" {
+        writer.semicolon = true;
+    }
+
+    writer.output.push_str(args);
 
     Ok(())
 }

@@ -1,10 +1,11 @@
+use std::borrow::Borrow;
+
+use tree_sitter::Node;
+
 use super::{
     expressions::write_expression, next_sibling_kind, node_len, preproc::insert_break,
     write_comment, write_dimension, write_dynamic_array, write_fixed_dimension, write_node, Writer,
 };
-use std::borrow::Borrow;
-
-use tree_sitter::Node;
 
 /// Write a global variable declaration.
 ///
@@ -204,13 +205,8 @@ pub fn write_variable_declaration_statement(
                     writer.output.push_str(", ")
                 }
             }
-            ";" => continue,
             _ => println!("Unexpected kind {} in write_variable_variable.", kind),
         }
-    }
-
-    if do_indent {
-        writer.output.push(';');
     }
 
     Ok(())

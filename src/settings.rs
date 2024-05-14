@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
+    pub use_space: bool,
+    pub space_size: u32,
     pub r#break: BreakSettings,
     pub brace_wrapping: BraceWrappingSettings,
 }

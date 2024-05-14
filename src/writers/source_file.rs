@@ -35,6 +35,7 @@ pub fn write_source_file(root_node: Node, writer: &mut Writer) -> anyhow::Result
         match kind.borrow() {
             "assertion" => write_assertion(&node, writer)?,
             "function_declaration" => write_function_declaration(&node, writer)?,
+            "function_definition" => write_function_declaration(&node, writer)?,
             "enum" => write_enum(&node, writer)?,
             "enum_struct" => write_enum_struct(&node, writer)?,
             "typedef" => write_typedef(&node, writer)?,

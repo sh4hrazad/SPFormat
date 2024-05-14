@@ -1,10 +1,13 @@
-use super::parser;
+use std::collections::HashSet;
+
+use tree_sitter::Language;
+
 use crate::{
     settings::Settings,
     writers::{self, source_file::write_source_file},
 };
-use std::collections::HashSet;
-use tree_sitter::Language;
+
+use super::parser;
 
 pub fn format_string_language(
     input: &String,
@@ -22,17 +25,24 @@ pub fn format_string_language(
     #[cfg(debug_assertions)]
     println!("{}", parsed.root_node().to_sexp());
 
+    let indent_string = if settings.use_space {
+        " ".repeat(settings.space_size as usize)
+    } else {
+        "\t".to_string()
+    };
+
     let mut writer = writers::Writer {
         output: String::new(),
         source: input.as_bytes(),
         language: &language,
         indent: 0,
-        indent_string: "\t".to_string(),
+        indent_string,
         skip: 0,
-        settings: settings,
-        _statement_kinds: HashSet::new(),
-        _expression_kinds: HashSet::new(),
-        _literal_kinds: HashSet::new(),
+        semicolon: false,
+        settings,
+        statement_kinds: HashSet::new(),
+        expression_kinds: HashSet::new(),
+        literal_kinds: HashSet::new(),
     };
 
     build_writer(&mut writer);
@@ -42,13 +52,13 @@ pub fn format_string_language(
 }
 
 fn build_writer(writer: &mut writers::Writer) {
-    let _statement_kinds = vec![
+    let statement_kinds = vec![
         "block",
         "variable_declaration_statement",
         "old_variable_declaration_statement",
         "for_statement",
-        "while_loop",    // while_statement
-        "do_while_loop", // do_while_statement
+        "while_statement",
+        "do_while_statement",
         "break_statement",
         "continue_statement",
         "condition_statement",
@@ -57,11 +67,12 @@ fn build_writer(writer: &mut writers::Writer) {
         "delete_statement",
         "expression_statement",
     ];
-    for kind in _statement_kinds {
-        writer._statement_kinds.insert(kind.to_string());
+
+    for kind in statement_kinds {
+        writer.statement_kinds.insert(kind.to_string());
     }
 
-    let _expression_kinds = vec![
+    let expression_kinds = vec![
         "assignment_expression",
         "function_call",
         "array_indexed_access",
@@ -80,11 +91,12 @@ fn build_writer(writer: &mut writers::Writer) {
         "this",
         "new_instance",
     ];
-    for kind in _expression_kinds {
-        writer._expression_kinds.insert(kind.to_string());
+
+    for kind in expression_kinds {
+        writer.expression_kinds.insert(kind.to_string());
     }
 
-    let _literal_kinds = vec![
+    let literal_kinds = vec![
         "int_literal",
         "float_literal",
         "char_literal",
@@ -94,7 +106,8 @@ fn build_writer(writer: &mut writers::Writer) {
         "array_literal",
         "null",
     ];
-    for kind in _literal_kinds {
-        writer._literal_kinds.insert(kind.to_string());
+
+    for kind in literal_kinds {
+        writer.literal_kinds.insert(kind.to_string());
     }
 }
