@@ -7,8 +7,8 @@ use super::{
     variables::write_type, write_comment, write_node, Writer,
 };
 
-pub fn write_methodmap(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_methodmap).unwrap();
+pub fn write_methodmap(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.before_methodmap).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_")
@@ -30,7 +30,7 @@ pub fn write_methodmap(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
             "<" => writer.output.push_str(" < "),
             "__nullable__" => writer.output.push_str(" __nullable__ "),
             "{" => {
-                if writer.settings.brace_wrapping_before_methodmap {
+                if writer.settings.brace_wrapping.before_methodmap {
                     writer.breakl();
                 } else {
                     writer.output.push(' ');
@@ -42,14 +42,14 @@ pub fn write_methodmap(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
                 writer.output.push_str("}");
                 writer.indent -= 1;
             }
-            "methodmap_alias" => write_methodmap_alias(child, writer)?,
+            "methodmap_alias" => write_methodmap_alias(&child, writer)?,
             "methodmap_native" | "methodmap_native_destructor" | "methodmap_native_constructor" => {
-                write_methodmap_native(child, writer)?
+                write_methodmap_native(&child, writer)?
             }
             "methodmap_method" | "methodmap_method_destructor" | "methodmap_method_constructor" => {
-                write_methodmap_method(child, writer)?
+                write_methodmap_method(&child, writer)?
             }
-            "methodmap_property" => write_methodmap_property(child, writer)?,
+            "methodmap_property" => write_methodmap_property(&child, writer)?,
             "comment" => write_comment(&child, writer)?,
             ";" => continue,
             _ => {
@@ -63,8 +63,8 @@ pub fn write_methodmap(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn write_methodmap_alias(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
+fn write_methodmap_alias(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
@@ -92,8 +92,8 @@ fn write_methodmap_alias(node: Node, writer: &mut Writer) -> anyhow::Result<()> 
     Ok(())
 }
 
-fn write_methodmap_native(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
+fn write_methodmap_native(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
@@ -116,7 +116,7 @@ fn write_methodmap_native(node: Node, writer: &mut Writer) -> anyhow::Result<()>
             "type" => write_type(&child, writer)?,
             "(" | ")" | "symbol" | "~" => write_node(&child, writer)?,
             "=" => writer.output.push_str(" = "),
-            "parameter_declarations" => write_argument_declarations(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(&child, writer)?,
             ";" => continue,
             _ => println!("Unexpected kind {} in write_methodmap_native.", kind),
         }
@@ -127,8 +127,8 @@ fn write_methodmap_native(node: Node, writer: &mut Writer) -> anyhow::Result<()>
     Ok(())
 }
 
-fn write_methodmap_method(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
+fn write_methodmap_method(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
@@ -151,14 +151,14 @@ fn write_methodmap_method(node: Node, writer: &mut Writer) -> anyhow::Result<()>
             "type" => write_type(&child, writer)?,
             "(" | ")" | "symbol" | "~" => write_node(&child, writer)?,
             "=" => writer.output.push_str(" = "),
-            "parameter_declarations" => write_argument_declarations(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(&child, writer)?,
             "block" => {
-                if writer.settings.brace_wrapping_before_function {
+                if writer.settings.brace_wrapping.before_function {
                     writer.breakl();
-                    write_block(child, writer, true)?;
+                    write_block(&child, writer, true)?;
                 } else {
                     writer.output.push(' ');
-                    write_block(child, writer, false)?;
+                    write_block(&child, writer, false)?;
                 }
             }
             _ => println!("Unexpected kind {} in write_methodmap_method.", kind),
@@ -169,8 +169,8 @@ fn write_methodmap_method(node: Node, writer: &mut Writer) -> anyhow::Result<()>
     Ok(())
 }
 
-fn write_methodmap_property(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
+fn write_methodmap_property(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
@@ -192,7 +192,7 @@ fn write_methodmap_property(node: Node, writer: &mut Writer) -> anyhow::Result<(
             "type" => write_type(&child, writer)?,
             "(" | ")" | "symbol" | "~" => write_node(&child, writer)?,
             "{" => {
-                if writer.settings.brace_wrapping_before_methodmap_property {
+                if writer.settings.brace_wrapping.before_methodmap_property {
                     writer.breakl();
                 } else {
                     writer.output.push(' ');
@@ -205,10 +205,10 @@ fn write_methodmap_property(node: Node, writer: &mut Writer) -> anyhow::Result<(
                 writer.indent -= 1;
             }
             "=" => writer.output.push_str(" = "),
-            "parameter_declarations" => write_argument_declarations(child, writer)?,
-            "methodmap_property_alias" => write_methodmap_property_alias(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(&child, writer)?,
+            "methodmap_property_alias" => write_methodmap_property_alias(&child, writer)?,
             "methodmap_property_method" | "methodmap_property_native" => {
-                write_methodmap_property_method(child, writer)?
+                write_methodmap_property_method(&child, writer)?
             }
             ";" => continue,
             _ => println!("Unexpected kind {} in write_methodmap_property.", kind),
@@ -220,8 +220,8 @@ fn write_methodmap_property(node: Node, writer: &mut Writer) -> anyhow::Result<(
     Ok(())
 }
 
-fn write_methodmap_property_alias(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
+fn write_methodmap_property_alias(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
@@ -253,8 +253,8 @@ fn write_methodmap_property_alias(node: Node, writer: &mut Writer) -> anyhow::Re
     Ok(())
 }
 
-fn write_methodmap_property_method(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_def).unwrap();
+fn write_methodmap_property_method(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.before_function_def).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
@@ -275,16 +275,16 @@ fn write_methodmap_property_method(node: Node, writer: &mut Writer) -> anyhow::R
                 writer.output.push(' ');
             }
             "methodmap_property_getter" => writer.output.push_str("get()"),
-            "methodmap_property_setter" => write_methodmap_property_setter(child, writer)?,
+            "methodmap_property_setter" => write_methodmap_property_setter(&child, writer)?,
             "identifier" => write_node(&child, writer)?,
             "=" => writer.output.push_str(" = "),
             "block" => {
-                if writer.settings.brace_wrapping_before_function {
+                if writer.settings.brace_wrapping.before_function {
                     writer.breakl();
-                    write_block(child, writer, true)?;
+                    write_block(&child, writer, true)?;
                 } else {
                     writer.output.push(' ');
-                    write_block(child, writer, false)?;
+                    write_block(&child, writer, false)?;
                 }
             }
             ";" => writer.output.push(';'),
@@ -299,7 +299,7 @@ fn write_methodmap_property_method(node: Node, writer: &mut Writer) -> anyhow::R
     Ok(())
 }
 
-fn write_methodmap_property_setter(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_methodmap_property_setter(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {

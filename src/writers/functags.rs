@@ -7,8 +7,8 @@ use super::{
     prev_sibling_kind, write_comment, write_node, Writer,
 };
 
-pub fn write_functag(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_decl).unwrap();
+pub fn write_functag(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.after_function_decl).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
@@ -23,12 +23,12 @@ pub fn write_functag(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
         match kind.borrow() {
             "functag" => writer.output.push_str("functag "),
             "public" => writer.output.push_str("public"),
-            "old_type" => write_old_type(child, writer)?,
+            "old_type" => write_old_type(&child, writer)?,
             "identifier" => {
                 write_node(&child, writer)?;
                 writer.output.push(' ')
             }
-            "parameter_declarations" => write_argument_declarations(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(&child, writer)?,
             ";" => continue,
             _ => {
                 println!("Unexpected kind {} in write_functag.", kind);
@@ -41,8 +41,8 @@ pub fn write_functag(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn write_funcenum(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_decl).unwrap();
+pub fn write_funcenum(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.after_function_decl).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
@@ -58,7 +58,7 @@ pub fn write_funcenum(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
             "funcenum" => writer.output.push_str("funcenum "),
             "identifier" => write_node(&child, writer)?,
             "{" => {
-                if writer.settings.brace_wrapping_before_funcenum {
+                if writer.settings.brace_wrapping.before_funcenum {
                     writer.breakl();
                 } else {
                     writer.output.push(' ');
@@ -72,7 +72,7 @@ pub fn write_funcenum(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
             }
             "funcenum_member" => {
                 let next_kind = next_sibling_kind(&child);
-                write_funcenum_member(child, writer)?;
+                write_funcenum_member(&child, writer)?;
                 writer.output.push(',');
 
                 if next_kind != "" {
@@ -92,7 +92,7 @@ pub fn write_funcenum(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn write_funcenum_member(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_funcenum_member(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     writer.write_indent();
@@ -101,8 +101,8 @@ fn write_funcenum_member(node: Node, writer: &mut Writer) -> anyhow::Result<()> 
         let kind = child.kind();
         match kind.borrow() {
             "public" => writer.output.push_str("public "),
-            "old_type" => write_old_type(child, writer)?,
-            "parameter_declarations" => write_argument_declarations(child, writer)?,
+            "old_type" => write_old_type(&child, writer)?,
+            "parameter_declarations" => write_argument_declarations(&child, writer)?,
             _ => {
                 println!("Unexpected kind {} in write_funcenum_member.", kind);
             }

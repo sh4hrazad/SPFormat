@@ -2,18 +2,29 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
-    pub breaks_before_function_decl: u32,
-    pub breaks_before_function_def: u32,
-    pub breaks_before_enum: u32,
-    pub breaks_before_enum_struct: u32,
-    pub breaks_before_methodmap: u32,
-    pub brace_wrapping_before_function: bool,
-    pub brace_wrapping_before_loop: bool,
-    pub brace_wrapping_before_condition: bool,
-    pub brace_wrapping_before_enum_struct: bool,
-    pub brace_wrapping_before_enum: bool,
-    pub brace_wrapping_before_typeset: bool,
-    pub brace_wrapping_before_funcenum: bool,
-    pub brace_wrapping_before_methodmap: bool,
-    pub brace_wrapping_before_methodmap_property: bool,
+    pub r#break: BreakSettings,
+    pub brace_wrapping: BraceWrappingSettings,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct BreakSettings {
+    pub after_function_decl: u32,
+    pub before_function_def: u32,
+    pub before_enum: u32,
+    pub before_enum_struct: u32,
+    pub before_methodmap: u32,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct BraceWrappingSettings {
+    pub before_function: bool,
+    pub before_loop: bool,
+    pub before_condition: bool,
+    pub before_enum_struct: bool,
+    pub before_enum: bool,
+    pub before_typeset: bool,
+    pub before_funcenum: bool,
+    pub before_methodmap: bool,
+    pub before_methodmap_property: bool,
+    pub before_struct_ctor: bool,
 }

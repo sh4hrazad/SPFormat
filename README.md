@@ -12,7 +12,7 @@
   </p>
 </div>
 
-## Try the [playground](https://sarrus1.github.io/SPFormat/)!
+## <del>Try the [playground](https://sarrus1.github.io/SPFormat/)!</del>
 
 ## CLI tool
 

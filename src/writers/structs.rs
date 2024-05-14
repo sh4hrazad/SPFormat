@@ -4,13 +4,13 @@ use std::borrow::Borrow;
 
 use tree_sitter::Node;
 
-pub fn write_struct_declaration(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+pub fn write_struct_declaration(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for sub_node in node.children(&mut cursor) {
         let kind = sub_node.kind();
         match kind.borrow() {
-            "public" | /* "symbol" | */ "identifier" => {
+            "public" | "identifier" => {
                 write_node(&sub_node, writer)?;
                 writer.output.push(' ');
             }
@@ -19,9 +19,14 @@ pub fn write_struct_declaration(node: Node, writer: &mut Writer) -> anyhow::Resu
                 write_comment(&sub_node, writer)?;
             }
             "=" => {
-                writer.output.push_str("=\n");
+                // todo
+                writer.output.push_str("=");
+
+                if writer.settings.brace_wrapping.before_struct_ctor {
+                    writer.output.push_str("\n");
+                }
             }
-            "struct_constructor" => write_struct_constructor(sub_node, writer)?,
+            "struct_constructor" => write_struct_constructor(&sub_node, writer)?,
             "\n" => {}
             _ => {
                 println!("Unexpected kind {} in write_struct_declaration.", kind);
@@ -32,7 +37,7 @@ pub fn write_struct_declaration(node: Node, writer: &mut Writer) -> anyhow::Resu
     Ok(())
 }
 
-fn write_struct_constructor(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_struct_constructor(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for sub_node in node.children(&mut cursor) {
@@ -42,7 +47,7 @@ fn write_struct_constructor(node: Node, writer: &mut Writer) -> anyhow::Result<(
                 writer.output.push('\t');
                 write_comment(&sub_node, writer)?;
             }
-            "struct_field_value" => write_struct_field_value(sub_node, writer)?,
+            "struct_field_value" => write_struct_field_value(&sub_node, writer)?,
             "{" => {
                 writer.indent += 1;
                 writer.output.push_str("{\n");
@@ -63,7 +68,7 @@ fn write_struct_constructor(node: Node, writer: &mut Writer) -> anyhow::Result<(
     Ok(())
 }
 
-fn write_struct_field_value(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_struct_field_value(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     let mut key = true;
     for sub_node in node.children(&mut cursor) {
@@ -88,7 +93,7 @@ fn write_struct_field_value(node: Node, writer: &mut Writer) -> anyhow::Result<(
             "=" => writer.output.push_str(" = "),
             // value
             _ => {
-                write_expression(sub_node, writer)?;
+                write_expression(&sub_node, writer)?;
                 writer.output.push_str(",\n")
             }
         }
@@ -97,7 +102,7 @@ fn write_struct_field_value(node: Node, writer: &mut Writer) -> anyhow::Result<(
     Ok(())
 }
 
-pub fn write_struct(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+pub fn write_struct(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for sub_node in node.children(&mut cursor) {
         match sub_node.kind().borrow() {
@@ -115,7 +120,7 @@ pub fn write_struct(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
                 writer.indent -= 1;
                 writer.output.push('}');
             }
-            "struct_field" => write_struct_field(sub_node, writer)?,
+            "struct_field" => write_struct_field(&sub_node, writer)?,
             _ => writer.output.push_str(";\n"),
         }
     }
@@ -123,7 +128,7 @@ pub fn write_struct(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn write_struct_field(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_struct_field(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     writer
         .output
         .push_str(writer.indent_string.repeat(writer.indent).as_str());
@@ -139,8 +144,8 @@ fn write_struct_field(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
                 writer.output.push(' ');
                 write_node(&sub_node, writer)?;
             }
-            "fixed_dimension" => write_fixed_dimension(sub_node, writer, true)?,
-            "dimension" => write_dimension(sub_node, writer, true)?,
+            "fixed_dimension" => write_fixed_dimension(&sub_node, writer, true)?,
+            "dimension" => write_dimension(&sub_node, writer, true)?,
             ";" => writer.output.push(';'),
             _ => println!("Unexpected kind {} in write_struct_field.", kind),
         }

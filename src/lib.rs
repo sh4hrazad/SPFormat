@@ -4,9 +4,6 @@ mod parser;
 pub mod settings;
 mod writers;
 
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen::prelude::*;
-
 use formatter::format_string_language;
 use settings::Settings;
 
@@ -21,6 +18,8 @@ pub fn format_string(input: &String, settings: &Settings) -> anyhow::Result<Stri
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub async fn sp_format(input: String, val: JsValue) -> Result<String, JsValue> {
+    use wasm_bindgen::prelude::*;
+
     tree_sitter::TreeSitter::init().await?;
     let language = language::sourcepawn().await.unwrap();
     let settings: Settings = val.into_serde().unwrap();

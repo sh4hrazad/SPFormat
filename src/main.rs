@@ -18,10 +18,12 @@ fn main() -> anyhow::Result<()> {
     let args = args().skip(1).collect::<Vec<String>>();
 
     if args.is_empty() {
-        anyhow::bail!("no files given to reformat!");
+        anyhow::bail!("no files given to reformat!")
     }
 
     let settings = build_settings_from_args()?;
+    
+    println!("{:#?}", settings);
 
     for file_name in &args {
         let source = match fs::read_to_string(&file_name) {
@@ -31,15 +33,9 @@ fn main() -> anyhow::Result<()> {
 
         let output = format_string(&source, &settings)?;
 
-        if !output.is_empty() {
-            fs::write(&file_name, output)?;
-            println!("{}", &file_name);
-        } else {
-            println!(
-                "writer got rekt! potential syntax error in file: {}",
-                file_name
-            );
-        }
+        fs::write(&file_name, output)?;
+
+        println!("{}", &file_name);
     }
 
     anyhow::Ok(())

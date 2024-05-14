@@ -8,7 +8,7 @@ use super::{
 };
 
 pub fn write_statement(
-    node: Node,
+    node: &Node,
     writer: &mut Writer,
     do_indent: bool,
     do_break: bool,
@@ -17,16 +17,16 @@ pub fn write_statement(
     let next_sibling = node.next_sibling();
 
     match node.kind().borrow() {
-        "block" => write_block(node, writer, do_indent)?,
+        "block" => write_block(&node, writer, do_indent)?,
         "variable_declaration_statement" => {
-            write_variable_declaration_statement(node, writer, do_indent)?
+            write_variable_declaration_statement(&node, writer, do_indent)?
         }
         "old_variable_declaration_statement" => {
-            write_old_variable_declaration_statement(node, writer, do_indent)?
+            write_old_variable_declaration_statement(&node, writer, do_indent)?
         }
-        "for_statement" => write_for_loop(node, writer, do_indent)?,
-        "while_loop" => write_while_loop(node, writer, do_indent)?,
-        "do_while_loop" => write_do_while_loop(node, writer, do_indent)?,
+        "for_statement" => write_for_loop(&node, writer, do_indent)?,
+        "while_loop" => write_while_loop(&node, writer, do_indent)?,
+        "do_while_loop" => write_do_while_loop(&node, writer, do_indent)?,
         "break_statement" => {
             if do_indent {
                 writer.write_indent();
@@ -41,15 +41,15 @@ pub fn write_statement(
             writer.output.push_str("continue");
             writer.output.push(';');
         }
-        "condition_statement" => write_condition_statement(node, writer, do_indent)?,
-        "switch_statement" => write_switch_statement(node, writer, do_indent)?,
-        "return_statement" => write_return_statement(node, writer, do_indent)?,
-        "delete_statement" => write_delete_statement(node, writer, do_indent)?,
+        "condition_statement" => write_condition_statement(&node, writer, do_indent)?,
+        "switch_statement" => write_switch_statement(&node, writer, do_indent)?,
+        "return_statement" => write_return_statement(&node, writer, do_indent)?,
+        "delete_statement" => write_delete_statement(&node, writer, do_indent)?,
         "expression_statement" => {
             if do_indent {
                 writer.write_indent();
             }
-            write_expression_statement(node, writer)?
+            write_expression_statement(&node, writer)?
         }
         _ => write_node(&node, writer)?,
     }
@@ -80,7 +80,7 @@ pub fn write_statement(
     Ok(())
 }
 
-fn write_for_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
+fn write_for_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut end_condition_reached = false;
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
@@ -97,7 +97,7 @@ fn write_for_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::R
                 end_condition_reached = true;
                 write_node(&child, writer)?;
             }
-            "assignment_expression" => write_expression(child, writer)?,
+            "assignment_expression" => write_expression(&child, writer)?,
             ";" => writer.output.push(';'),
             "," => writer.output.push_str(", "),
             _ => {
@@ -106,28 +106,28 @@ fn write_for_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::R
                         if writer.output.ends_with(";") {
                             writer.output.push(' ');
                         }
-                        write_statement(child, writer, false, false)?;
+                        write_statement(&child, writer, false, false)?;
                         continue;
                     }
                     if kind == "block" {
-                        if writer.settings.brace_wrapping_before_loop {
+                        if writer.settings.brace_wrapping.before_loop {
                             writer.breakl();
-                            write_block(child, writer, true)?;
+                            write_block(&child, writer, true)?;
                         } else {
                             writer.output.push(' ');
-                            write_block(child, writer, false)?;
+                            write_block(&child, writer, false)?;
                         }
                     } else {
                         writer.breakl();
                         writer.indent += 1;
-                        write_statement(child, writer, true, false)?;
+                        write_statement(&child, writer, true, false)?;
                         writer.indent -= 1;
                     }
                 } else if writer.is_expression(&kind) {
                     if writer.output.ends_with(';') {
                         writer.output.push(' ');
                     }
-                    write_expression(child, writer)?;
+                    write_expression(&child, writer)?;
                 } else {
                     write_node(&child, writer)?;
                 }
@@ -138,7 +138,7 @@ fn write_for_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::R
     Ok(())
 }
 
-fn write_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
+fn write_while_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut end_condition_reached = false;
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
@@ -159,27 +159,27 @@ fn write_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow:
                 if writer.is_statement(&kind) {
                     if end_condition_reached {
                         if kind == "block" {
-                            if writer.settings.brace_wrapping_before_loop {
+                            if writer.settings.brace_wrapping.before_loop {
                                 writer.breakl();
-                                write_block(child, writer, true)?;
+                                write_block(&child, writer, true)?;
                             } else {
                                 writer.output.push(' ');
-                                write_block(child, writer, false)?;
+                                write_block(&child, writer, false)?;
                             }
                         } else {
                             writer.breakl();
                             writer.indent += 1;
-                            write_statement(child, writer, true, false)?;
+                            write_statement(&child, writer, true, false)?;
                             writer.indent -= 1;
                         }
                     } else {
-                        write_statement(child, writer, false, false)?;
+                        write_statement(&child, writer, false, false)?;
                     }
                 } else if writer.is_expression(&kind) {
                     if writer.output.ends_with(';') {
                         writer.output.push(' ');
                     }
-                    write_expression(child, writer)?;
+                    write_expression(&child, writer)?;
                 } else {
                     write_node(&child, writer)?;
                 }
@@ -190,7 +190,7 @@ fn write_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow:
     Ok(())
 }
 
-fn write_do_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
+fn write_do_while_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut in_condition = false;
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
@@ -214,29 +214,29 @@ fn write_do_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyh
             _ => {
                 if writer.is_statement(&kind) {
                     if in_condition {
-                        write_statement(child, writer, false, false)?;
+                        write_statement(&child, writer, false, false)?;
                         continue;
                     }
                     if kind == "block" {
-                        if writer.settings.brace_wrapping_before_loop {
+                        if writer.settings.brace_wrapping.before_loop {
                             writer.breakl();
-                            write_block(child, writer, true)?;
+                            write_block(&child, writer, true)?;
                         } else {
                             writer.output.push(' ');
-                            write_block(child, writer, false)?;
+                            write_block(&child, writer, false)?;
                         }
                         writer.breakl();
                     } else {
                         writer.breakl();
                         writer.indent += 1;
-                        write_statement(child, writer, true, false)?;
+                        write_statement(&child, writer, true, false)?;
                         writer.indent -= 1;
                     }
                 } else if writer.is_expression(&kind) {
                     if writer.output.ends_with(';') {
                         writer.output.push(' ');
                     }
-                    write_expression(child, writer)?;
+                    write_expression(&child, writer)?;
                 } else {
                     write_node(&child, writer)?;
                 }
@@ -247,7 +247,7 @@ fn write_do_while_loop(node: Node, writer: &mut Writer, do_indent: bool) -> anyh
     Ok(())
 }
 
-fn write_switch_statement(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
+fn write_switch_statement(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -263,7 +263,7 @@ fn write_switch_statement(node: Node, writer: &mut Writer, do_indent: bool) -> a
                 write_node(&child, writer)?;
             }
             "{" => {
-                if writer.settings.brace_wrapping_before_condition {
+                if writer.settings.brace_wrapping.before_condition {
                     writer.breakl();
                     writer.write_indent();
                 } else {
@@ -278,11 +278,11 @@ fn write_switch_statement(node: Node, writer: &mut Writer, do_indent: bool) -> a
                 writer.write_indent();
                 writer.output.push('}');
             }
-            "switch_case" => write_switch_case(child, writer)?,
-            "switch_default_case" => write_switch_default_case(child, writer)?,
+            "switch_case" => write_switch_case(&child, writer)?,
+            "switch_default_case" => write_switch_default_case(&child, writer)?,
             _ => {
                 if writer.is_expression(&kind) {
-                    write_expression(child, writer)?;
+                    write_expression(&child, writer)?;
                 } else {
                     write_node(&child, writer)?;
                 }
@@ -293,7 +293,7 @@ fn write_switch_statement(node: Node, writer: &mut Writer, do_indent: bool) -> a
     Ok(())
 }
 
-fn write_switch_case(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_switch_case(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -306,16 +306,16 @@ fn write_switch_case(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
             ":" => {
                 writer.output.push_str(":\n");
             }
-            "switch_case_values" => write_switch_case_values(child, writer)?,
+            "switch_case_values" => write_switch_case_values(&child, writer)?,
             "comment" => write_comment(&child, writer)?,
             _ => {
                 if kind == "block" {
-                    write_statement(child, writer, true, true)?;
+                    write_statement(&child, writer, true, true)?;
                     continue;
                 }
                 if writer.is_statement(&kind) {
                     writer.indent += 1;
-                    write_statement(child, writer, true, true)?;
+                    write_statement(&child, writer, true, true)?;
                     writer.indent -= 1;
                 } else {
                     write_node(&child, writer)?;
@@ -327,7 +327,7 @@ fn write_switch_case(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn write_switch_default_case(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_switch_default_case(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -341,12 +341,12 @@ fn write_switch_default_case(node: Node, writer: &mut Writer) -> anyhow::Result<
             }
             _ => {
                 if kind == "block" {
-                    write_statement(child, writer, true, true)?;
+                    write_statement(&child, writer, true, true)?;
                     continue;
                 }
                 if writer.is_statement(&kind) {
                     writer.indent += 1;
-                    write_statement(child, writer, true, true)?;
+                    write_statement(&child, writer, true, true)?;
                     writer.indent -= 1;
                 } else {
                     write_node(&child, writer)?
@@ -358,7 +358,7 @@ fn write_switch_default_case(node: Node, writer: &mut Writer) -> anyhow::Result<
     Ok(())
 }
 
-fn write_switch_case_values(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_switch_case_values(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -368,7 +368,7 @@ fn write_switch_case_values(node: Node, writer: &mut Writer) -> anyhow::Result<(
             "," => writer.output.push_str(", "),
             _ => {
                 if writer.is_expression(&kind) {
-                    write_expression(child, writer)?;
+                    write_expression(&child, writer)?;
                 } else {
                     write_node(&child, writer)?;
                 }
@@ -379,7 +379,7 @@ fn write_switch_case_values(node: Node, writer: &mut Writer) -> anyhow::Result<(
     Ok(())
 }
 
-fn write_return_statement(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
+fn write_return_statement(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -394,7 +394,7 @@ fn write_return_statement(node: Node, writer: &mut Writer, do_indent: bool) -> a
             ";" => writer.output.push(';'),
             _ => {
                 if writer.is_expression(&kind) {
-                    write_expression(child, writer)?;
+                    write_expression(&child, writer)?;
                 } else {
                     write_node(&child, writer)?
                 }
@@ -405,7 +405,7 @@ fn write_return_statement(node: Node, writer: &mut Writer, do_indent: bool) -> a
     Ok(())
 }
 
-fn write_delete_statement(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
+fn write_delete_statement(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -420,7 +420,7 @@ fn write_delete_statement(node: Node, writer: &mut Writer, do_indent: bool) -> a
             ";" => writer.output.push(';'),
             _ => {
                 if writer.is_expression(&kind) {
-                    write_expression(child, writer)?;
+                    write_expression(&child, writer)?;
                 } else {
                     write_node(&child, writer)?
                 }
@@ -431,7 +431,7 @@ fn write_delete_statement(node: Node, writer: &mut Writer, do_indent: bool) -> a
     Ok(())
 }
 
-fn write_expression_statement(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_expression_statement(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         let kind = child.kind();
@@ -439,7 +439,7 @@ fn write_expression_statement(node: Node, writer: &mut Writer) -> anyhow::Result
             "comment" => write_comment(&child, writer)?,
             _ => {
                 if writer.is_expression(&kind) {
-                    write_expression(child, writer)?;
+                    write_expression(&child, writer)?;
                 } else {
                     write_node(&child, writer)?
                 }
@@ -451,7 +451,7 @@ fn write_expression_statement(node: Node, writer: &mut Writer) -> anyhow::Result
 }
 
 fn write_condition_statement(
-    node: Node,
+    node: &Node,
     writer: &mut Writer,
     do_indent: bool,
 ) -> anyhow::Result<()> {
@@ -485,31 +485,31 @@ fn write_condition_statement(
                 if writer.is_statement(&kind) {
                     if out_of_condition {
                         if kind == "block" {
-                            if writer.settings.brace_wrapping_before_condition {
+                            if writer.settings.brace_wrapping.before_condition {
                                 writer.breakl();
-                                write_block(child, writer, true)?;
+                                write_block(&child, writer, true)?;
                             } else {
                                 writer.output.push(' ');
-                                write_block(child, writer, false)?;
+                                write_block(&child, writer, false)?;
                             }
                         } else {
                             if else_statement && kind == "condition_statement" {
-                                write_statement(child, writer, true, false)?;
+                                write_statement(&child, writer, true, false)?;
                                 continue;
                             }
                             writer.breakl();
                             writer.indent += 1;
-                            write_statement(child, writer, true, false)?;
+                            write_statement(&child, writer, true, false)?;
                             writer.indent -= 1;
                         }
                     } else {
-                        write_statement(child, writer, false, false)?;
+                        write_statement(&child, writer, false, false)?;
                     }
                 } else if writer.is_expression(&kind) {
                     if writer.output.ends_with(';') {
                         writer.output.push(' ');
                     }
-                    write_expression(child, writer)?;
+                    write_expression(&child, writer)?;
                 } else {
                     write_node(&child, writer)?;
                 }
@@ -520,7 +520,7 @@ fn write_condition_statement(
     Ok(())
 }
 
-pub fn write_block(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
+pub fn write_block(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {
@@ -542,7 +542,7 @@ pub fn write_block(node: Node, writer: &mut Writer, do_indent: bool) -> anyhow::
             "comment" => write_comment(&child, writer)?,
             _ => {
                 if writer.is_statement(&kind) {
-                    write_statement(child, writer, true, true)?
+                    write_statement(&child, writer, true, true)?
                 } else {
                     write_node(&child, writer)?
                 }

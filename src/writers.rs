@@ -82,7 +82,7 @@ pub fn write_comment(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn write_dynamic_array(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_dynamic_array(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     writer.output.push_str("new ");
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
@@ -96,7 +96,7 @@ fn write_dynamic_array(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn write_dimension(node: Node, writer: &mut Writer, insert_space: bool) -> anyhow::Result<()> {
+fn write_dimension(node: &Node, writer: &mut Writer, insert_space: bool) -> anyhow::Result<()> {
     let next_kind = next_sibling_kind(&node);
     writer.output.push_str("[]");
 
@@ -108,7 +108,7 @@ fn write_dimension(node: Node, writer: &mut Writer, insert_space: bool) -> anyho
 }
 
 fn write_fixed_dimension(
-    node: Node,
+    node: &Node,
     writer: &mut Writer,
     insert_space: bool,
 ) -> anyhow::Result<()> {
@@ -121,7 +121,7 @@ fn write_fixed_dimension(
     for child in node.children(&mut cursor) {
         match child.kind().borrow() {
             "[" | "]" => continue,
-            _ => write_expression(child, writer)?,
+            _ => write_expression(&child, writer)?,
         }
     }
     writer.output.push(']');

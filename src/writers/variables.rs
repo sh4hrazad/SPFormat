@@ -149,7 +149,7 @@ fn get_max_variable_name_length(node: &Node) -> anyhow::Result<usize> {
 /// * `node`   - The variable declaration statement node to write.
 /// * `writer` - The writer object.
 pub fn write_variable_declaration_statement(
-    node: Node,
+    node: &Node,
     writer: &mut Writer,
     do_indent: bool,
 ) -> anyhow::Result<()> {
@@ -186,7 +186,7 @@ pub fn write_variable_declaration_statement(
                     writer.output.push_str(" ".repeat(type_length).as_str());
                 }
             }
-            "dimension" => write_dimension(child, writer, true)?,
+            "dimension" => write_dimension(&child, writer, true)?,
             "variable_declaration" => write_variable_declaration(&child, writer, max_name_length)?,
             "," => {
                 if max_name_length > 0 {
@@ -243,10 +243,10 @@ fn write_variable_declaration(
             }
             "fixed_dimension" => {
                 name_length += node_len(&child);
-                write_fixed_dimension(child, writer, false)?;
+                write_fixed_dimension(&child, writer, false)?;
             }
             "dimension" => {
-                write_dimension(child, writer, false)?;
+                write_dimension(&child, writer, false)?;
                 name_length += 2;
             }
             "=" => {
@@ -258,10 +258,10 @@ fn write_variable_declaration(
                 // }
                 writer.output.push_str(" = ");
             }
-            "dynamic_array" => write_dynamic_array(child, writer)?,
+            "dynamic_array" => write_dynamic_array(&child, writer)?,
             _ => {
                 if writer.is_expression(&kind) {
-                    write_expression(child, writer)?
+                    write_expression(&child, writer)?
                 } else {
                     println!("Unexpected kind {} in write_variable_declaration.", kind);
                 }

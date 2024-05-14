@@ -10,7 +10,7 @@ use super::{
     enum_structs::write_enum_struct,
     enums::write_enum,
     functags::{write_funcenum, write_functag},
-    functions::{write_function_declaration, write_function_definition},
+    functions::write_function_declaration,
     hardcoded_symbols::write_hardcoded_symbol,
     methodmaps::write_methodmap,
     old_variables::write_old_global_variable_declaration,
@@ -34,18 +34,16 @@ pub fn write_source_file(root_node: Node, writer: &mut Writer) -> anyhow::Result
         let kind = node.kind();
         match kind.borrow() {
             "assertion" => write_assertion(&node, writer)?,
-            "function_declaration" => write_function_declaration(node, writer)?,
-            // "function_definition" => write_function_definition(node, writer)?,
-            "function_definition" => write_function_declaration(node, writer)?,
-            "enum" => write_enum(node, writer)?,
-            "enum_struct" => write_enum_struct(node, writer)?,
-            "typedef" => write_typedef(node, writer)?,
-            "typeset" => write_typeset(node, writer)?,
-            "functag" => write_functag(node, writer)?,
-            "funcenum" => write_funcenum(node, writer)?,
-            "methodmap" => write_methodmap(node, writer)?,
-            "struct" => write_struct(node, writer)?,
-            "struct_declaration" => write_struct_declaration(node, writer)?,
+            "function_declaration" => write_function_declaration(&node, writer)?,
+            "enum" => write_enum(&node, writer)?,
+            "enum_struct" => write_enum_struct(&node, writer)?,
+            "typedef" => write_typedef(&node, writer)?,
+            "typeset" => write_typeset(&node, writer)?,
+            "functag" => write_functag(&node, writer)?,
+            "funcenum" => write_funcenum(&node, writer)?,
+            "methodmap" => write_methodmap(&node, writer)?,
+            "struct" => write_struct(&node, writer)?,
+            "struct_declaration" => write_struct_declaration(&node, writer)?,
             "global_variable_declaration" => write_global_variable_declaration(&node, writer)?,
             "old_global_variable_declaration" => {
                 write_old_global_variable_declaration(&node, writer)?
@@ -54,8 +52,8 @@ pub fn write_source_file(root_node: Node, writer: &mut Writer) -> anyhow::Result
             "preproc_macro" | "preproc_define" => write_preproc_define(&node, writer)?,
             "preproc_undefine" => write_preproc_undefine(&node, writer)?,
             "hardcoded_symbol" => write_hardcoded_symbol(&node, writer)?,
-            "alias_declaration" => write_alias_declaration(node, writer)?,
-            "alias_assignment" => write_alias_assignment(node, writer)?,
+            "alias_declaration" => write_alias_declaration(&node, writer)?,
+            "alias_assignment" => write_alias_assignment(&node, writer)?,
             "comment" => write_comment(&node, writer)?,
             "preproc_endif" | "preproc_else" | "preproc_endinput" => {
                 write_preproc_symbol(&node, writer)?

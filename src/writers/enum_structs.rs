@@ -7,8 +7,8 @@ use super::{
     variables::write_type, write_comment, write_fixed_dimension, write_node, Writer,
 };
 
-pub fn write_enum_struct(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_enum_struct).unwrap();
+pub fn write_enum_struct(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.before_enum_struct).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
@@ -27,7 +27,7 @@ pub fn write_enum_struct(node: Node, writer: &mut Writer) -> anyhow::Result<()> 
             }
             "identifier" => write_node(&child, writer)?,
             "{" => {
-                if writer.settings.brace_wrapping_before_enum_struct {
+                if writer.settings.brace_wrapping.before_enum_struct {
                     writer.breakl();
                 } else {
                     writer.output.push(' ');
@@ -40,8 +40,8 @@ pub fn write_enum_struct(node: Node, writer: &mut Writer) -> anyhow::Result<()> 
                 writer.indent -= 1;
             }
             "comment" => write_comment(&child, writer)?,
-            "enum_struct_field" => write_enum_struct_field(child, writer)?,
-            "enum_struct_method" => write_enum_struct_method(child, writer)?,
+            "enum_struct_field" => write_enum_struct_field(&child, writer)?,
+            "enum_struct_method" => write_enum_struct_method(&child, writer)?,
             _ => {
                 println!("Unexpected kind {} in write_enum_struct.", kind);
             }
@@ -52,8 +52,8 @@ pub fn write_enum_struct(node: Node, writer: &mut Writer) -> anyhow::Result<()> 
     Ok(())
 }
 
-fn write_enum_struct_field(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_decl).unwrap();
+fn write_enum_struct_field(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.after_function_decl).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_")
@@ -74,7 +74,7 @@ fn write_enum_struct_field(node: Node, writer: &mut Writer) -> anyhow::Result<()
         match kind.borrow() {
             "type" => write_type(&child, writer)?,
             "identifier" => write_node(&child, writer)?,
-            "fixed_dimension" => write_fixed_dimension(child, writer, true)?,
+            "fixed_dimension" => write_fixed_dimension(&child, writer, true)?,
             ";" => write_node(&child, writer)?,
             _ => {
                 println!("Unexpected kind {} in write_enum_struct_field.", kind);
@@ -86,8 +86,8 @@ fn write_enum_struct_field(node: Node, writer: &mut Writer) -> anyhow::Result<()
     Ok(())
 }
 
-fn write_enum_struct_method(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_decl).unwrap();
+fn write_enum_struct_method(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.after_function_decl).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "{" && prev_kind != "comment" {
@@ -104,14 +104,14 @@ fn write_enum_struct_method(node: Node, writer: &mut Writer) -> anyhow::Result<(
         match kind.borrow() {
             "type" => write_type(&child, writer)?,
             "identifier" => write_node(&child, writer)?,
-            "parameter_declarations" => write_argument_declarations(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(&child, writer)?,
             "block" => {
-                if writer.settings.brace_wrapping_before_function {
+                if writer.settings.brace_wrapping.before_function {
                     writer.breakl();
-                    write_block(child, writer, true)?;
+                    write_block(&child, writer, true)?;
                 } else {
                     writer.output.push(' ');
-                    write_block(child, writer, false)?;
+                    write_block(&child, writer, false)?;
                 }
             }
             _ => {

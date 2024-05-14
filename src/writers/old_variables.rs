@@ -39,7 +39,7 @@ pub fn write_old_global_variable_declaration(
                         .push_str(" ".repeat(declarator_length).as_str());
                 }
             }
-            "old_variable_declaration" => write_old_variable_declaration(child, writer)?,
+            "old_variable_declaration" => write_old_variable_declaration(&child, writer)?,
             "," => {
                 if should_break {
                     let next_kind = next_sibling_kind(&child);
@@ -131,7 +131,7 @@ fn should_break_declaration(node: &Node) -> anyhow::Result<bool> {
 /// * `node`   - The old variable declaration statement node to write.
 /// * `writer` - The writer object.
 pub fn write_old_variable_declaration_statement(
-    node: Node,
+    node: &Node,
     writer: &mut Writer,
     do_indent: bool,
 ) -> anyhow::Result<()> {
@@ -153,7 +153,7 @@ pub fn write_old_variable_declaration_statement(
                 writer.output.push(' ');
                 declarator_length += node_len(&child) + 1;
             }
-            "old_variable_declaration" => write_old_variable_declaration(child, writer)?,
+            "old_variable_declaration" => write_old_variable_declaration(&child, writer)?,
             "comment" => {
                 write_comment(&child, writer)?;
                 if should_break {
@@ -202,20 +202,20 @@ pub fn write_old_variable_declaration_statement(
 ///
 /// * `node`   - The old variable declaration node to write.
 /// * `writer` - The writer object.
-fn write_old_variable_declaration(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_old_variable_declaration(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "old_type" => write_old_type(child, writer)?,
-            "dimension" => write_dimension(child, writer, false)?,
-            "fixed_dimension" => write_fixed_dimension(child, writer, false)?,
+            "old_type" => write_old_type(&child, writer)?,
+            "dimension" => write_dimension(&child, writer, false)?,
+            "fixed_dimension" => write_fixed_dimension(&child, writer, false)?,
             "identifier" => write_node(&child, writer)?,
             "=" => writer.output.push_str(" = "),
             _ => {
                 if writer.is_expression(&kind) {
-                    write_expression(child, writer)?;
+                    write_expression(&child, writer)?;
                 } else {
                     println!(
                         "Unexpected kind {} in write_old_variable_declaration.",

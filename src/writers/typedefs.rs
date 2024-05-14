@@ -8,8 +8,8 @@ use super::{
     Writer,
 };
 
-pub fn write_typedef(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_decl).unwrap();
+pub fn write_typedef(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.after_function_decl).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
@@ -25,7 +25,7 @@ pub fn write_typedef(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
             "typedef" => writer.output.push_str("typedef "),
             "identifier" => write_node(&child, writer)?,
             "=" => writer.output.push_str(" = "),
-            "typedef_expression" => write_typedef_expression(child, writer)?,
+            "typedef_expression" => write_typedef_expression(&child, writer)?,
             ";" => continue,
             _ => {
                 println!("Unexpected kind {} in write_typedef.", kind);
@@ -38,8 +38,8 @@ pub fn write_typedef(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn write_typeset(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
-    let nb_lines: usize = usize::try_from(writer.settings.breaks_before_function_decl).unwrap();
+pub fn write_typeset(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
+    let nb_lines: usize = usize::try_from(writer.settings.r#break.after_function_decl).unwrap();
     let prev_kind = prev_sibling_kind(&node);
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
@@ -55,7 +55,7 @@ pub fn write_typeset(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
             "typeset" => writer.output.push_str("typeset "),
             "identifier" => write_node(&child, writer)?,
             "{" => {
-                if writer.settings.brace_wrapping_before_typeset {
+                if writer.settings.brace_wrapping.before_typeset {
                     writer.breakl();
                 } else {
                     writer.output.push(' ');
@@ -69,7 +69,7 @@ pub fn write_typeset(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
             }
             "typedef_expression" => {
                 let next_kind = next_sibling_kind(&child);
-                write_typedef_expression(child, writer)?;
+                write_typedef_expression(&child, writer)?;
                 writer.output.push(';');
 
                 if next_kind != "" {
@@ -89,7 +89,7 @@ pub fn write_typeset(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn write_typedef_expression(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
+fn write_typedef_expression(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
 
     writer.write_indent();
@@ -99,9 +99,9 @@ fn write_typedef_expression(node: Node, writer: &mut Writer) -> anyhow::Result<(
         match kind.borrow() {
             "function" => writer.output.push_str("function "),
             "type" => write_type(&child, writer)?,
-            "dimension" => write_dimension(child, writer, false)?,
-            "fixed_dimension" => write_fixed_dimension(child, writer, false)?,
-            "parameter_declarations" => write_argument_declarations(child, writer)?,
+            "dimension" => write_dimension(&child, writer, false)?,
+            "fixed_dimension" => write_fixed_dimension(&child, writer, false)?,
+            "parameter_declarations" => write_argument_declarations(&child, writer)?,
             "(" | ")" => continue,
             _ => {
                 println!("Unexpected kind {} in write_typedef_expression.", kind);
