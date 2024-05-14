@@ -28,7 +28,7 @@ pub fn write_global_variable_declaration(node: &Node, writer: &mut Writer) -> an
                 write_type(&child, writer)?;
                 type_length += node_len(&child);
             }
-            "variable_storage_class" | "variable_visibility" => {
+            "variable_storage_class" | "visibility" => {
                 write_node(&child, writer)?;
                 writer.output.push(' ');
                 type_length += node_len(&child) + 1;
@@ -237,7 +237,6 @@ fn write_variable_declaration(
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            // "symbol" => {
             "identifier" | "call_expression" => {
                 write_node(&child, writer)?;
                 name_length += node_len(&child);

@@ -33,6 +33,7 @@ fn main() -> anyhow::Result<()> {
 
         if !output.is_empty() {
             fs::write(&file_name, output)?;
+            println!("{}", &file_name);
         } else {
             println!(
                 "writer got rekt! potential syntax error in file: {}",
@@ -40,9 +41,6 @@ fn main() -> anyhow::Result<()> {
             );
         }
     }
-
-    println!("Press any key to exit...");
-    std::io::stdin().read_line(&mut String::new())?;
 
     anyhow::Ok(())
 }

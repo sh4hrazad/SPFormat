@@ -72,6 +72,7 @@ fn build_writer(writer: &mut writers::Writer) {
         "unary_expression",
         "update_expression",
         "sizeof_expression",
+        "new_expression",
         "view_as",
         "old_type_cast",
         "symbol",
