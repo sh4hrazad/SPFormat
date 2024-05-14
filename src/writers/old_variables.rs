@@ -1,12 +1,13 @@
+use std::borrow::Borrow;
+
+use tree_sitter::Node;
+
 use super::{
     expressions::{write_expression, write_old_type},
     next_sibling_kind, node_len,
     preproc::insert_break,
     write_comment, write_dimension, write_fixed_dimension, write_node, Writer,
 };
-use std::borrow::Borrow;
-
-use tree_sitter::Node;
 
 /// Write an old global variable declaration.
 ///
@@ -28,7 +29,7 @@ pub fn write_old_global_variable_declaration(
         match kind.borrow() {
             "variable_storage_class" | "variable_visibility" | "new" | "decl" => {
                 write_node(&child, writer)?;
-                writer.output.push(' ');
+                writer.write(' ');
                 declarator_length += node_len(&child) + 1;
             }
             "comment" => {
@@ -44,15 +45,15 @@ pub fn write_old_global_variable_declaration(
                 if should_break {
                     let next_kind = next_sibling_kind(&child);
                     if next_kind == "comment" {
-                        writer.output.push_str(",");
+                        writer.write_str(",");
                     } else {
-                        writer.output.push_str(",\n");
+                        writer.write_str(",\n");
                         writer
                             .output
                             .push_str(" ".repeat(declarator_length).as_str());
                     }
                 } else {
-                    writer.output.push_str(", ")
+                    writer.write_str(", ")
                 }
             }
             ";" => continue,
@@ -62,7 +63,7 @@ pub fn write_old_global_variable_declaration(
             ),
         }
     }
-    writer.output.push(';');
+    writer.write(';');
 
     insert_break(&node, writer);
 
@@ -150,7 +151,7 @@ pub fn write_old_variable_declaration_statement(
         match kind.borrow() {
             "variable_storage_class" | "new" | "decl" => {
                 write_node(&child, writer)?;
-                writer.output.push(' ');
+                writer.write(' ');
                 declarator_length += node_len(&child) + 1;
             }
             "old_variable_declaration" => write_old_variable_declaration(&child, writer)?,
@@ -169,9 +170,9 @@ pub fn write_old_variable_declaration_statement(
                 if should_break {
                     let next_kind = next_sibling_kind(&child);
                     if next_kind == "comment" {
-                        writer.output.push_str(",");
+                        writer.write_str(",");
                     } else {
-                        writer.output.push_str(",\n");
+                        writer.write_str(",\n");
                         if do_indent {
                             writer.write_indent();
                         }
@@ -180,7 +181,7 @@ pub fn write_old_variable_declaration_statement(
                             .push_str(" ".repeat(declarator_length).as_str());
                     }
                 } else {
-                    writer.output.push_str(", ")
+                    writer.write_str(", ")
                 }
             }
             ";" => continue,
@@ -189,7 +190,7 @@ pub fn write_old_variable_declaration_statement(
     }
 
     if do_indent {
-        writer.output.push(';');
+        writer.write(';');
         insert_break(&node, writer);
     }
 
@@ -212,7 +213,7 @@ fn write_old_variable_declaration(node: &Node, writer: &mut Writer) -> anyhow::R
             "dimension" => write_dimension(&child, writer, false)?,
             "fixed_dimension" => write_fixed_dimension(&child, writer, false)?,
             "identifier" => write_node(&child, writer)?,
-            "=" => writer.output.push_str(" = "),
+            "=" => writer.write_str(" = "),
             _ => {
                 if writer.is_expression(&kind) {
                     write_expression(&child, writer)?;

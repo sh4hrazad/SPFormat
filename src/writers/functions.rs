@@ -31,10 +31,10 @@ pub fn write_function_declaration(node: &Node, writer: &mut Writer) -> anyhow::R
             "identifier" => write_node(&child, writer)?,
             "block" => {
                 if writer.settings.brace_wrapping.before_function {
-                    writer.breakl();
+                    writer.write_ln();
                     write_block(&child, writer, true)?;
                 } else {
-                    writer.output.push(' ');
+                    writer.write(' ');
                     write_block(&child, writer, false)?;
                 }
             }
@@ -44,11 +44,11 @@ pub fn write_function_declaration(node: &Node, writer: &mut Writer) -> anyhow::R
         }
     }
 
-    writer.breakl();
+    writer.write_ln();
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
         for _ in 0..nb_lines {
-            writer.breakl();
+            writer.write_ln();
         }
     }
 
@@ -72,7 +72,7 @@ pub fn write_argument_declarations(node: &Node, writer: &mut Writer) -> anyhow::
                 }
             }
             "argument_declaration" => write_argument_declaration(&child, writer)?,
-            "," => writer.output.push_str(", "),
+            "," => writer.write_str(", "),
             _ => write_node(&child, writer)?,
         }
     }
@@ -85,7 +85,7 @@ fn write_argument_declaration(node: &Node, writer: &mut Writer) -> anyhow::Resul
 
     for child in node.children(&mut cursor) {
         match child.kind().borrow() {
-            "const" => writer.output.push_str("const "),
+            "const" => writer.write_str("const "),
             "argument_type" => write_argument_type(&child, writer)?,
             "identifier" => write_node(&child, writer)?,
             "dimension" => write_dimension(&child, writer, true)?,
@@ -93,10 +93,10 @@ fn write_argument_declaration(node: &Node, writer: &mut Writer) -> anyhow::Resul
                 let next_kind = next_sibling_kind(&child);
                 write_fixed_dimension(&child, writer, true)?;
                 if next_kind != "dimension" || next_kind != "fixed_dimension" {
-                    writer.output.push(' ')
+                    writer.write(' ')
                 };
             }
-            "=" => writer.output.push_str(" = "),
+            "=" => writer.write_str(" = "),
             _ => write_expression(&child, writer)?,
         }
     }
@@ -111,9 +111,9 @@ fn write_argument_type(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
         match child.kind().borrow() {
             "&" => {
                 let next_kind = next_sibling_kind(&child);
-                writer.output.push('&');
+                writer.write('&');
                 if next_kind != "old_type" && next_kind != "" {
-                    writer.output.push(' ')
+                    writer.write(' ')
                 };
             }
             "type" => write_type(&child, writer)?,
@@ -129,7 +129,7 @@ pub fn write_function_visibility(node: &Node, writer: &mut Writer) -> anyhow::Re
     let mut cursor = node.walk();
     for child in node.children(&mut cursor) {
         write_node(&child, writer)?;
-        writer.output.push(' ');
+        writer.write(' ');
     }
 
     Ok(())

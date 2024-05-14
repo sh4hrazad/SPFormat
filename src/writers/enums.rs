@@ -13,7 +13,7 @@ pub fn write_enum(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
         // Insert new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -21,24 +21,24 @@ pub fn write_enum(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "enum" => writer.output.push_str("enum "),
+            "enum" => writer.write_str("enum "),
             "symbol" | ":" | ";" => write_node(&child, writer)?,
-            "(" => writer.output.push_str("("),
-            ")" => writer.output.push_str(")"),
+            "(" => writer.write_str("("),
+            ")" => writer.write_str(")"),
             "enum_entries" => write_enum_entries(&child, writer)?,
             _ => {
                 if writer.is_expression(&kind) {
                     write_expression(&child, writer)?;
                 } else if kind.to_string().ends_with('=') {
                     write_node(&child, writer)?;
-                    writer.output.push(' ');
+                    writer.write(' ');
                 } else {
                     println!("Unexpected kind {} in write_enum.", kind);
                 }
             }
         }
     }
-    writer.breakl();
+    writer.write_ln();
 
     Ok(())
 }
@@ -51,15 +51,15 @@ fn write_enum_entries(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
         match kind.borrow() {
             "{" => {
                 if writer.settings.brace_wrapping.before_enum {
-                    writer.breakl();
+                    writer.write_ln();
                 } else {
-                    writer.output.push(' ');
+                    writer.write(' ');
                 }
-                writer.output.push_str("{\n");
+                writer.write_str("{\n");
                 writer.indent += 1;
             }
             "}" => {
-                writer.output.push_str("}");
+                writer.write_str("}");
                 writer.indent -= 1;
             }
             "enum_entry" => write_enum_entry(&child, writer)?,
@@ -72,7 +72,7 @@ fn write_enum_entries(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
                     // Match all in place operators, write it, and add a space
                     // to respect the rest of the styling.
                     write_node(&child, writer)?;
-                    writer.output.push(' ');
+                    writer.write(' ');
                 } else {
                     println!("Unexpected kind {} in write_enum_entries.", kind);
                 }
@@ -92,9 +92,9 @@ fn write_enum_entry(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
         let kind = child.kind();
         match kind.borrow() {
             "builtin_type" | "symbol" | "identifier" => write_node(&child, writer)?,
-            ":" => writer.output.push_str(": "),
+            ":" => writer.write_str(": "),
             "fixed_dimension" => write_fixed_dimension(&child, writer, true)?,
-            "=" => writer.output.push_str(" = "),
+            "=" => writer.write_str(" = "),
             _ => {
                 if writer.is_expression(&kind) {
                     write_expression(&child, writer)?;
@@ -104,8 +104,8 @@ fn write_enum_entry(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
             }
         }
     }
-    writer.output.push(',');
-    writer.breakl();
+    writer.write(',');
+    writer.write_ln();
 
     Ok(())
 }

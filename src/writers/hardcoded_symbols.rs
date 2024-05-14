@@ -1,7 +1,8 @@
-use super::{preproc::insert_break, write_node, Writer};
-
 use std::borrow::Borrow;
+
 use tree_sitter::Node;
+
+use super::{preproc::insert_break, write_node, Writer};
 
 pub fn write_hardcoded_symbol(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
@@ -14,7 +15,7 @@ pub fn write_hardcoded_symbol(node: &Node, writer: &mut Writer) -> anyhow::Resul
             _ => println!("Unexpected kind {} in write_hardcoded_symbol.", kind),
         }
     }
-    writer.output.push(';');
+    writer.write(';');
     insert_break(&node, writer);
 
     Ok(())

@@ -1,10 +1,11 @@
+use std::borrow::Borrow;
+
+use tree_sitter::Node;
+
 use super::{
     expressions::write_function_call_arguments, preproc::insert_break, write_comment, write_node,
     Writer,
 };
-
-use std::borrow::Borrow;
-use tree_sitter::Node;
 
 pub fn write_assertion(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let mut cursor = node.walk();
@@ -19,7 +20,7 @@ pub fn write_assertion(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
             _ => println!("Unexpected kind {} in write_assertion.", kind),
         }
     }
-    writer.output.push(';');
+    writer.write(';');
     insert_break(&node, writer);
 
     Ok(())

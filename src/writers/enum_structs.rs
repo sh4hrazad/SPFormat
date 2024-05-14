@@ -13,7 +13,7 @@ pub fn write_enum_struct(node: &Node, writer: &mut Writer) -> anyhow::Result<()>
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
         // Insert new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -23,20 +23,20 @@ pub fn write_enum_struct(node: &Node, writer: &mut Writer) -> anyhow::Result<()>
         match kind.borrow() {
             "enum" | "struct" => {
                 write_node(&child, writer)?;
-                writer.output.push(' ')
+                writer.write(' ')
             }
             "identifier" => write_node(&child, writer)?,
             "{" => {
                 if writer.settings.brace_wrapping.before_enum_struct {
-                    writer.breakl();
+                    writer.write_ln();
                 } else {
-                    writer.output.push(' ');
+                    writer.write(' ');
                 }
-                writer.output.push_str("{\n");
+                writer.write_str("{\n");
                 writer.indent += 1;
             }
             "}" => {
-                writer.output.push_str("}\n");
+                writer.write_str("}\n");
                 writer.indent -= 1;
             }
             "comment" => write_comment(&child, writer)?,
@@ -47,7 +47,7 @@ pub fn write_enum_struct(node: &Node, writer: &mut Writer) -> anyhow::Result<()>
             }
         }
     }
-    writer.breakl();
+    writer.write_ln();
 
     Ok(())
 }
@@ -62,7 +62,7 @@ fn write_enum_struct_field(node: &Node, writer: &mut Writer) -> anyhow::Result<(
         && prev_kind != "enum_struct_field"
     {
         // Insert new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     writer.write_indent();
@@ -80,7 +80,7 @@ fn write_enum_struct_field(node: &Node, writer: &mut Writer) -> anyhow::Result<(
         }
     }
 
-    writer.breakl();
+    writer.write_ln();
 
     Ok(())
 }
@@ -91,7 +91,7 @@ fn write_enum_struct_method(node: &Node, writer: &mut Writer) -> anyhow::Result<
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "{" && prev_kind != "comment" {
         // Insert new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     writer.write_indent();
@@ -106,10 +106,10 @@ fn write_enum_struct_method(node: &Node, writer: &mut Writer) -> anyhow::Result<
             "parameter_declarations" => write_argument_declarations(&child, writer)?,
             "block" => {
                 if writer.settings.brace_wrapping.before_function {
-                    writer.breakl();
+                    writer.write_ln();
                     write_block(&child, writer, true)?;
                 } else {
-                    writer.output.push(' ');
+                    writer.write(' ');
                     write_block(&child, writer, false)?;
                 }
             }
@@ -118,7 +118,7 @@ fn write_enum_struct_method(node: &Node, writer: &mut Writer) -> anyhow::Result<
             }
         }
     }
-    writer.breakl();
+    writer.write_ln();
 
     Ok(())
 }

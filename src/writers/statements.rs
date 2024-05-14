@@ -46,13 +46,13 @@ pub fn write_statement(
             if do_indent {
                 writer.write_indent();
             }
-            writer.output.push_str("break");
+            writer.write_str("break");
         }
         "continue_statement" => {
             if do_indent {
                 writer.write_indent();
             }
-            writer.output.push_str("continue");
+            writer.write_str("continue");
         }
         "return_statement" => write_return_statement(&node, writer, do_indent)?,
         "delete_statement" => write_delete_statement(&node, writer, do_indent)?,
@@ -69,12 +69,12 @@ pub fn write_statement(
     }
 
     if maybe_has_semicolon && writer.semicolon {
-        writer.output.push_str(";");
+        writer.write_str(";");
     }
 
     if do_break {
         if next_sibling.is_none() {
-            writer.breakl();
+            writer.write_ln();
             return Ok(());
         }
         let st = next_sibling.as_ref().unwrap().start_position().row();
@@ -90,10 +90,10 @@ pub fn write_statement(
         // Add another break if the next sibling is not right below/next
         // to the current sibling.
         if st - sp > 1 {
-            writer.breakl();
+            writer.write_ln();
         }
 
-        writer.breakl();
+        writer.write_ln();
     }
 
     Ok(())
@@ -131,14 +131,14 @@ fn write_for_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::
                     // something to do in for loop
                     if kind == "block" {
                         if writer.settings.brace_wrapping.before_loop {
-                            writer.breakl();
+                            writer.write_ln();
                             write_block(&child, writer, true)?;
                         } else {
-                            writer.output.push(' ');
+                            writer.write(' ');
                             write_block(&child, writer, false)?;
                         }
                     } else {
-                        writer.breakl();
+                        writer.write_ln();
                         writer.indent += 1;
                         write_statement(&child, writer, true, false)?;
                         writer.indent -= 1;
@@ -146,13 +146,13 @@ fn write_for_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow::
                 } else if writer.is_expression(&kind) {
                     // condition or iteration
                     if writer.output.ends_with(';') {
-                        writer.output.push(' ');
+                        writer.write(' ');
                     }
 
                     write_expression(&child, writer)?;
 
                     if !got_condition_expr {
-                        writer.output.push_str("; ");
+                        writer.write_str("; ");
                         got_condition_expr = true;
                     }
                 } else {
@@ -189,14 +189,14 @@ fn write_while_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow
                     if end_condition_reached {
                         if kind == "block" {
                             if writer.settings.brace_wrapping.before_loop {
-                                writer.breakl();
+                                writer.write_ln();
                                 write_block(&child, writer, true)?;
                             } else {
-                                writer.output.push(' ');
+                                writer.write(' ');
                                 write_block(&child, writer, false)?;
                             }
                         } else {
-                            writer.breakl();
+                            writer.write_ln();
                             writer.indent += 1;
                             write_statement(&child, writer, true, false)?;
                             writer.indent -= 1;
@@ -206,7 +206,7 @@ fn write_while_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow
                     }
                 } else if writer.is_expression(&kind) {
                     if writer.output.ends_with(';') {
-                        writer.output.push(' ');
+                        writer.write(' ');
                     }
                     write_expression(&child, writer)?;
                 } else {
@@ -229,12 +229,12 @@ fn write_do_while_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> any
                 if do_indent {
                     writer.write_indent();
                 }
-                writer.output.push_str("do");
+                writer.write_str("do");
             }
             "while" => {
                 in_condition = true;
                 writer.write_indent();
-                writer.output.push_str("while");
+                writer.write_str("while");
             }
             "(" => write_node(&child, writer)?,
             ")" => {
@@ -248,22 +248,22 @@ fn write_do_while_loop(node: &Node, writer: &mut Writer, do_indent: bool) -> any
                     }
                     if kind == "block" {
                         if writer.settings.brace_wrapping.before_loop {
-                            writer.breakl();
+                            writer.write_ln();
                             write_block(&child, writer, true)?;
                         } else {
-                            writer.output.push(' ');
+                            writer.write(' ');
                             write_block(&child, writer, false)?;
                         }
-                        writer.breakl();
+                        writer.write_ln();
                     } else {
-                        writer.breakl();
+                        writer.write_ln();
                         writer.indent += 1;
                         write_statement(&child, writer, true, false)?;
                         writer.indent -= 1;
                     }
                 } else if writer.is_expression(&kind) {
                     if writer.output.ends_with(';') {
-                        writer.output.push(' ');
+                        writer.write(' ');
                     }
                     write_expression(&child, writer)?;
                 } else {
@@ -285,7 +285,7 @@ fn write_switch_statement(node: &Node, writer: &mut Writer, do_indent: bool) -> 
                 if do_indent {
                     writer.write_indent();
                 }
-                writer.output.push_str("switch");
+                writer.write_str("switch");
             }
             "(" => write_node(&child, writer)?,
             ")" => {
@@ -293,19 +293,19 @@ fn write_switch_statement(node: &Node, writer: &mut Writer, do_indent: bool) -> 
             }
             "{" => {
                 if writer.settings.brace_wrapping.before_condition {
-                    writer.breakl();
+                    writer.write_ln();
                     writer.write_indent();
                 } else {
-                    writer.output.push(' ');
+                    writer.write(' ');
                 }
-                writer.output.push('{');
-                writer.breakl();
+                writer.write('{');
+                writer.write_ln();
                 writer.indent += 1;
             }
             "}" => {
                 writer.indent -= 1;
                 writer.write_indent();
-                writer.output.push('}');
+                writer.write('}');
             }
             "switch_case" => write_switch_case(&child, writer)?,
             "switch_default_case" => write_switch_default_case(&child, writer)?,
@@ -330,10 +330,10 @@ fn write_switch_case(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
             "case" => {
                 writer.write_indent();
                 write_node(&child, writer)?;
-                writer.output.push(' ');
+                writer.write(' ');
             }
             ":" => {
-                writer.output.push_str(":\n");
+                writer.write_str(":\n");
             }
             "switch_case_values" => write_switch_case_values(&child, writer)?,
             "comment" => write_comment(&child, writer)?,
@@ -366,7 +366,7 @@ fn write_switch_default_case(node: &Node, writer: &mut Writer) -> anyhow::Result
                 write_node(&child, writer)?;
             }
             ":" => {
-                writer.output.push_str(":\n");
+                writer.write_str(":\n");
             }
             _ => {
                 if kind == "block" {
@@ -394,7 +394,7 @@ fn write_switch_case_values(node: &Node, writer: &mut Writer) -> anyhow::Result<
         match kind.borrow() {
             "comment" => write_comment(&child, writer)?,
             "identifier" => write_node(&child, writer)?,
-            "," => writer.output.push_str(", "),
+            "," => writer.write_str(", "),
             _ => {
                 if writer.is_expression(&kind) {
                     write_expression(&child, writer)?;
@@ -418,9 +418,9 @@ fn write_return_statement(node: &Node, writer: &mut Writer, do_indent: bool) -> 
                 if do_indent {
                     writer.write_indent();
                 }
-                writer.output.push_str("return ");
+                writer.write_str("return ");
             }
-            ";" => writer.output.push(';'),
+            ";" => writer.write(';'),
             _ => {
                 if writer.is_expression(&kind) {
                     write_expression(&child, writer)?;
@@ -444,9 +444,9 @@ fn write_delete_statement(node: &Node, writer: &mut Writer, do_indent: bool) -> 
                 if do_indent {
                     writer.write_indent();
                 }
-                writer.output.push_str("delete ");
+                writer.write_str("delete ");
             }
-            ";" => writer.output.push(';'),
+            ";" => writer.write(';'),
             _ => {
                 if writer.is_expression(&kind) {
                     write_expression(&child, writer)?;
@@ -492,14 +492,14 @@ fn write_condition_statement(
         match kind.borrow() {
             "if" => {
                 if writer.output.ends_with("else") {
-                    writer.output.push(' ');
+                    writer.write(' ');
                 } else if do_indent {
                     writer.write_indent();
                 }
                 write_node(&child, writer)?;
             }
             "else" => {
-                writer.breakl();
+                writer.write_ln();
                 writer.write_indent();
                 write_node(&child, writer)?;
                 out_of_condition = true;
@@ -515,10 +515,10 @@ fn write_condition_statement(
                     if out_of_condition {
                         if kind == "block" {
                             if writer.settings.brace_wrapping.before_condition {
-                                writer.breakl();
+                                writer.write_ln();
                                 write_block(&child, writer, true)?;
                             } else {
-                                writer.output.push(' ');
+                                writer.write(' ');
                                 write_block(&child, writer, false)?;
                             }
                         } else {
@@ -526,7 +526,7 @@ fn write_condition_statement(
                                 write_statement(&child, writer, true, false)?;
                                 continue;
                             }
-                            writer.breakl();
+                            writer.write_ln();
                             writer.indent += 1;
                             write_statement(&child, writer, true, false)?;
                             writer.indent -= 1;
@@ -536,7 +536,7 @@ fn write_condition_statement(
                     }
                 } else if writer.is_expression(&kind) {
                     if writer.output.ends_with(';') {
-                        writer.output.push(' ');
+                        writer.write(' ');
                     }
                     write_expression(&child, writer)?;
                 } else {
@@ -560,7 +560,7 @@ pub fn write_block(node: &Node, writer: &mut Writer, do_indent: bool) -> anyhow:
                     writer.write_indent();
                 }
                 write_node(&child, writer)?;
-                writer.breakl();
+                writer.write_ln();
                 writer.indent += 1;
             }
             "}" => {

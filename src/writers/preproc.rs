@@ -17,7 +17,7 @@ pub fn insert_break(node: &Node, writer: &mut Writer) {
     let next_kind = next_sibling_kind(&node);
     if next_kind == "" {
         // No next sibling, add a break and return.
-        writer.breakl();
+        writer.write_ln();
         return;
     }
 
@@ -31,12 +31,12 @@ pub fn insert_break(node: &Node, writer: &mut Writer) {
 
     // Insert a line break no matter what,
     // consecutive includes cannot be on the same line.
-    writer.breakl();
+    writer.write_ln();
 
     // Check if the next sibling is right after this node.
     // If it's not, limit the amount of empty rows to 1.
     if next_row - node.end_position().row() > 1 {
-        writer.breakl();
+        writer.write_ln();
     }
 }
 
@@ -54,7 +54,7 @@ pub fn write_preproc_include(node: &Node, writer: &mut Writer) -> anyhow::Result
         match kind.borrow() {
             "#include" | "#tryinclude" => {
                 write_node(&child, writer)?;
-                writer.output.push(' ')
+                writer.write(' ')
             }
             "string_literal" | "system_lib_string" => write_node(&child, writer)?,
             _ => println!("Unexpected kind {} in write_preproc_include.", kind),
@@ -78,13 +78,13 @@ pub fn write_preproc_define(node: &Node, writer: &mut Writer) -> anyhow::Result<
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "#define" => writer.output.push_str("#define "),
+            "#define" => writer.write_str("#define "),
             "symbol" | "identifier" | "macro_param" | "(" | ")" => write_node(&child, writer)?,
             "preproc_arg" => {
-                writer.output.push(' ');
+                writer.write(' ');
                 write_preproc_arg(&child, writer)?;
             }
-            "," => writer.output.push_str(", "),
+            "," => writer.write_str(", "),
             _ => println!("Unexpected kind {} in write_preproc_define.", kind),
         }
     }
@@ -107,7 +107,7 @@ pub fn write_preproc_undefine(node: &Node, writer: &mut Writer) -> anyhow::Resul
         let kind = child.kind();
         match kind.borrow() {
             "identifier" => write_node(&child, writer)?,
-            "#undef" => writer.output.push_str("#undef "),
+            "#undef" => writer.write_str("#undef "),
             _ => println!("Unexpected kind {} in write_preproc_undefine.", kind),
         }
     }
@@ -138,7 +138,7 @@ pub fn write_preproc_generic(node: &Node, writer: &mut Writer) -> anyhow::Result
         match kind.borrow() {
             "#if" | "#elseif" | "#error" | "#warning" | "#pragma" | "#assert" => {
                 write_node(&child, writer)?;
-                writer.output.push(' ');
+                writer.write(' ');
             }
             // got identifier and value together for preproc_arg here
             "preproc_arg" => {
@@ -192,7 +192,7 @@ fn write_preproc_arg(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
         writer.semicolon = true;
     }
 
-    writer.output.push_str(args);
+    writer.write_str(args);
 
     Ok(())
 }

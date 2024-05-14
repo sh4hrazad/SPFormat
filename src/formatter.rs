@@ -40,74 +40,53 @@ pub fn format_string_language(
         skip: 0,
         semicolon: false,
         settings,
-        statement_kinds: HashSet::new(),
-        expression_kinds: HashSet::new(),
-        literal_kinds: HashSet::new(),
+        statement_kinds: HashSet::from_iter(vec![
+            "block",
+            "variable_declaration_statement",
+            "old_variable_declaration_statement",
+            "for_statement",
+            "while_statement",
+            "do_while_statement",
+            "break_statement",
+            "continue_statement",
+            "condition_statement",
+            "switch_statement",
+            "return_statement",
+            "delete_statement",
+            "expression_statement",
+        ]),
+        expression_kinds: HashSet::from_iter(vec![
+            "assignment_expression",
+            "function_call",
+            "array_indexed_access",
+            "ternary_expression",
+            "field_access",
+            "scope_access",
+            "binary_expression",
+            "unary_expression",
+            "update_expression",
+            "sizeof_expression",
+            "new_expression",
+            "view_as",
+            "old_type_cast",
+            "symbol",
+            "parenthesized_expression",
+            "this",
+            "new_instance",
+        ]),
+        literal_kinds: HashSet::from_iter(vec![
+            "int_literal",
+            "float_literal",
+            "char_literal",
+            "string_literal",
+            "concatenated_string",
+            "bool_literal",
+            "array_literal",
+            "null",
+        ]),
     };
 
-    build_writer(&mut writer);
     write_source_file(parsed.root_node(), &mut writer)?;
 
     Ok(writer.output)
-}
-
-fn build_writer(writer: &mut writers::Writer) {
-    let statement_kinds = vec![
-        "block",
-        "variable_declaration_statement",
-        "old_variable_declaration_statement",
-        "for_statement",
-        "while_statement",
-        "do_while_statement",
-        "break_statement",
-        "continue_statement",
-        "condition_statement",
-        "switch_statement",
-        "return_statement",
-        "delete_statement",
-        "expression_statement",
-    ];
-
-    for kind in statement_kinds {
-        writer.statement_kinds.insert(kind.to_string());
-    }
-
-    let expression_kinds = vec![
-        "assignment_expression",
-        "function_call",
-        "array_indexed_access",
-        "ternary_expression",
-        "field_access",
-        "scope_access",
-        "binary_expression",
-        "unary_expression",
-        "update_expression",
-        "sizeof_expression",
-        "new_expression",
-        "view_as",
-        "old_type_cast",
-        "symbol",
-        "parenthesized_expression",
-        "this",
-        "new_instance",
-    ];
-
-    for kind in expression_kinds {
-        writer.expression_kinds.insert(kind.to_string());
-    }
-
-    let literal_kinds = vec![
-        "int_literal",
-        "float_literal",
-        "char_literal",
-        "string_literal",
-        "concatenated_string",
-        "bool_literal",
-        "array_literal",
-        "null",
-    ];
-
-    for kind in literal_kinds {
-        writer.literal_kinds.insert(kind.to_string());
-    }
 }

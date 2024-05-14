@@ -21,7 +21,7 @@ pub fn write_alias_declaration(node: &Node, writer: &mut Writer) -> anyhow::Resu
         && prev_kind != "alias_declaration"
     {
         // Insert new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -37,10 +37,10 @@ pub fn write_alias_declaration(node: &Node, writer: &mut Writer) -> anyhow::Resu
             "parameter_declarations" => write_argument_declarations(&child, writer)?,
             "block" => {
                 if writer.settings.brace_wrapping.before_function {
-                    writer.breakl();
+                    writer.write_ln();
                     write_block(&child, writer, true)?;
                 } else {
-                    writer.output.push(' ');
+                    writer.write(' ');
                     write_block(&child, writer, false)?;
                 }
             }
@@ -53,7 +53,7 @@ pub fn write_alias_declaration(node: &Node, writer: &mut Writer) -> anyhow::Resu
             }
         }
     }
-    writer.breakl();
+    writer.write_ln();
 
     Ok(())
 }
@@ -68,7 +68,7 @@ pub fn write_alias_assignment(node: &Node, writer: &mut Writer) -> anyhow::Resul
         && prev_kind != "alias_assignment"
     {
         // Insert two new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -81,10 +81,10 @@ pub fn write_alias_assignment(node: &Node, writer: &mut Writer) -> anyhow::Resul
             "old_type" => write_old_type(&child, writer)?,
             "identifier" => write_node(&child, writer)?,
             "dimension" => write_dimension(&child, writer, true)?,
-            "=" => writer.output.push_str(" = "),
+            "=" => writer.write_str(" = "),
             "alias_operator" | "operator" => write_node(&child, writer)?,
             "parameter_declarations" => write_argument_declarations(&child, writer)?,
-            ";" => writer.output.push(';'),
+            ";" => writer.write(';'),
             _ => {
                 if writer.is_statement(&kind) {
                     write_statement(&child, writer, false, false)?;
@@ -94,7 +94,7 @@ pub fn write_alias_assignment(node: &Node, writer: &mut Writer) -> anyhow::Resul
             }
         }
     }
-    writer.breakl();
+    writer.write_ln();
 
     Ok(())
 }

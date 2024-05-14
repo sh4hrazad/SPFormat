@@ -17,7 +17,7 @@ pub fn write_methodmap(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
         && prev_kind != "alias_declaration"
     {
         // Insert new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -25,21 +25,21 @@ pub fn write_methodmap(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "methodmap" => writer.output.push_str("methodmap "),
+            "methodmap" => writer.write_str("methodmap "),
             "identifier" => write_node(&child, writer)?,
-            "<" => writer.output.push_str(" < "),
-            "__nullable__" => writer.output.push_str(" __nullable__ "),
+            "<" => writer.write_str(" < "),
+            "__nullable__" => writer.write_str(" __nullable__ "),
             "{" => {
                 if writer.settings.brace_wrapping.before_methodmap {
-                    writer.breakl();
+                    writer.write_ln();
                 } else {
-                    writer.output.push(' ');
+                    writer.write(' ');
                 }
-                writer.output.push_str("{\n");
+                writer.write_str("{\n");
                 writer.indent += 1;
             }
             "}" => {
-                writer.output.push_str("}");
+                writer.write_str("}");
                 writer.indent -= 1;
             }
             "methodmap_alias" => write_methodmap_alias(&child, writer)?,
@@ -57,8 +57,8 @@ pub fn write_methodmap(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
             }
         }
     }
-    writer.output.push(';');
-    writer.breakl();
+    writer.write(';');
+    writer.write_ln();
 
     Ok(())
 }
@@ -69,7 +69,7 @@ fn write_methodmap_alias(node: &Node, writer: &mut Writer) -> anyhow::Result<()>
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
         // Insert two new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -79,15 +79,15 @@ fn write_methodmap_alias(node: &Node, writer: &mut Writer) -> anyhow::Result<()>
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "public" => writer.output.push_str("public "),
+            "public" => writer.write_str("public "),
             "~" | "(" | ")" | "identifier" => write_node(&child, writer)?,
-            "=" => writer.output.push_str(" = "),
+            "=" => writer.write_str(" = "),
             ";" => continue,
             _ => println!("Unexpected kind {} in write_alias_declaration.", kind),
         }
     }
-    writer.output.push(';');
-    writer.breakl();
+    writer.write(';');
+    writer.write_ln();
 
     Ok(())
 }
@@ -98,7 +98,7 @@ fn write_methodmap_native(node: &Node, writer: &mut Writer) -> anyhow::Result<()
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
         // Insert two new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -108,21 +108,21 @@ fn write_methodmap_native(node: &Node, writer: &mut Writer) -> anyhow::Result<()
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "public" => writer.output.push_str("public "),
+            "public" => writer.write_str("public "),
             "static" | "native" => {
                 write_node(&child, writer)?;
-                writer.output.push(' ');
+                writer.write(' ');
             }
             "type" => write_type(&child, writer)?,
             "(" | ")" | "symbol" | "~" => write_node(&child, writer)?,
-            "=" => writer.output.push_str(" = "),
+            "=" => writer.write_str(" = "),
             "parameter_declarations" => write_argument_declarations(&child, writer)?,
             ";" => continue,
             _ => println!("Unexpected kind {} in write_methodmap_native.", kind),
         }
     }
-    writer.output.push(';');
-    writer.breakl();
+    writer.write(';');
+    writer.write_ln();
 
     Ok(())
 }
@@ -133,7 +133,7 @@ fn write_methodmap_method(node: &Node, writer: &mut Writer) -> anyhow::Result<()
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
         // Insert two new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -143,28 +143,28 @@ fn write_methodmap_method(node: &Node, writer: &mut Writer) -> anyhow::Result<()
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "public" => writer.output.push_str("public "),
+            "public" => writer.write_str("public "),
             "static" => {
                 write_node(&child, writer)?;
-                writer.output.push(' ');
+                writer.write(' ');
             }
             "type" => write_type(&child, writer)?,
             "(" | ")" | "symbol" | "~" => write_node(&child, writer)?,
-            "=" => writer.output.push_str(" = "),
+            "=" => writer.write_str(" = "),
             "parameter_declarations" => write_argument_declarations(&child, writer)?,
             "block" => {
                 if writer.settings.brace_wrapping.before_function {
-                    writer.breakl();
+                    writer.write_ln();
                     write_block(&child, writer, true)?;
                 } else {
-                    writer.output.push(' ');
+                    writer.write(' ');
                     write_block(&child, writer, false)?;
                 }
             }
             _ => println!("Unexpected kind {} in write_methodmap_method.", kind),
         }
     }
-    writer.breakl();
+    writer.write_ln();
 
     Ok(())
 }
@@ -175,7 +175,7 @@ fn write_methodmap_property(node: &Node, writer: &mut Writer) -> anyhow::Result<
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
         // Insert two new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -187,24 +187,24 @@ fn write_methodmap_property(node: &Node, writer: &mut Writer) -> anyhow::Result<
         match kind.borrow() {
             "property" => {
                 write_node(&child, writer)?;
-                writer.output.push(' ');
+                writer.write(' ');
             }
             "type" => write_type(&child, writer)?,
             "(" | ")" | "symbol" | "~" => write_node(&child, writer)?,
             "{" => {
                 if writer.settings.brace_wrapping.before_methodmap_property {
-                    writer.breakl();
+                    writer.write_ln();
                 } else {
-                    writer.output.push(' ');
+                    writer.write(' ');
                 }
-                writer.output.push_str("{\n");
+                writer.write_str("{\n");
                 writer.indent += 1;
             }
             "}" => {
-                writer.output.push_str("}");
+                writer.write_str("}");
                 writer.indent -= 1;
             }
-            "=" => writer.output.push_str(" = "),
+            "=" => writer.write_str(" = "),
             "parameter_declarations" => write_argument_declarations(&child, writer)?,
             "methodmap_property_alias" => write_methodmap_property_alias(&child, writer)?,
             "methodmap_property_method" | "methodmap_property_native" => {
@@ -214,8 +214,8 @@ fn write_methodmap_property(node: &Node, writer: &mut Writer) -> anyhow::Result<
             _ => println!("Unexpected kind {} in write_methodmap_property.", kind),
         }
     }
-    writer.output.push(';');
-    writer.breakl();
+    writer.write(';');
+    writer.write_ln();
 
     Ok(())
 }
@@ -226,7 +226,7 @@ fn write_methodmap_property_alias(node: &Node, writer: &mut Writer) -> anyhow::R
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
         // Insert two new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -236,10 +236,10 @@ fn write_methodmap_property_alias(node: &Node, writer: &mut Writer) -> anyhow::R
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "public" => writer.output.push_str("public "),
-            "methodmap_property_getter" => writer.output.push_str("get()"),
+            "public" => writer.write_str("public "),
+            "methodmap_property_getter" => writer.write_str("get()"),
             "identifier" => write_node(&child, writer)?,
-            "=" => writer.output.push_str(" = "),
+            "=" => writer.write_str(" = "),
             ";" => continue,
             _ => println!(
                 "Unexpected kind {} in write_methodmap_property_alias.",
@@ -247,8 +247,8 @@ fn write_methodmap_property_alias(node: &Node, writer: &mut Writer) -> anyhow::R
             ),
         }
     }
-    writer.output.push(';');
-    writer.breakl();
+    writer.write(';');
+    writer.write_ln();
 
     Ok(())
 }
@@ -259,7 +259,7 @@ fn write_methodmap_property_method(node: &Node, writer: &mut Writer) -> anyhow::
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
         // Insert two new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -269,32 +269,32 @@ fn write_methodmap_property_method(node: &Node, writer: &mut Writer) -> anyhow::
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "public" => writer.output.push_str("public "),
+            "public" => writer.write_str("public "),
             "native" => {
                 write_node(&child, writer)?;
-                writer.output.push(' ');
+                writer.write(' ');
             }
-            "methodmap_property_getter" => writer.output.push_str("get()"),
+            "methodmap_property_getter" => writer.write_str("get()"),
             "methodmap_property_setter" => write_methodmap_property_setter(&child, writer)?,
             "identifier" => write_node(&child, writer)?,
-            "=" => writer.output.push_str(" = "),
+            "=" => writer.write_str(" = "),
             "block" => {
                 if writer.settings.brace_wrapping.before_function {
-                    writer.breakl();
+                    writer.write_ln();
                     write_block(&child, writer, true)?;
                 } else {
-                    writer.output.push(' ');
+                    writer.write(' ');
                     write_block(&child, writer, false)?;
                 }
             }
-            ";" => writer.output.push(';'),
+            ";" => writer.write(';'),
             _ => println!(
                 "Unexpected kind {} in write_methodmap_property_method.",
                 kind
             ),
         }
     }
-    writer.breakl();
+    writer.write_ln();
 
     Ok(())
 }
@@ -305,7 +305,7 @@ fn write_methodmap_property_setter(node: &Node, writer: &mut Writer) -> anyhow::
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "set" => writer.output.push_str("set"),
+            "set" => writer.write_str("set"),
             "symbol" | "(" | ")" => write_node(&child, writer)?,
             "type" => write_type(&child, writer)?,
             ";" => continue,

@@ -14,7 +14,7 @@ pub fn write_typedef(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
         // Insert new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -22,9 +22,9 @@ pub fn write_typedef(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "typedef" => writer.output.push_str("typedef "),
+            "typedef" => writer.write_str("typedef "),
             "identifier" => write_node(&child, writer)?,
-            "=" => writer.output.push_str(" = "),
+            "=" => writer.write_str(" = "),
             "typedef_expression" => write_typedef_expression(&child, writer)?,
             ";" => continue,
             _ => {
@@ -32,8 +32,8 @@ pub fn write_typedef(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
             }
         }
     }
-    writer.output.push(';');
-    writer.breakl();
+    writer.write(';');
+    writer.write_ln();
 
     Ok(())
 }
@@ -44,7 +44,7 @@ pub fn write_typeset(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
 
     if !prev_kind.starts_with("preproc_") && prev_kind != "" && prev_kind != "comment" {
         // Insert new lines automatically
-        writer.output.push_str("\n".repeat(nb_lines).as_str());
+        writer.write_str("\n".repeat(nb_lines).as_str());
     }
 
     let mut cursor = node.walk();
@@ -52,28 +52,28 @@ pub fn write_typeset(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "typeset" => writer.output.push_str("typeset "),
+            "typeset" => writer.write_str("typeset "),
             "identifier" => write_node(&child, writer)?,
             "{" => {
                 if writer.settings.brace_wrapping.before_typeset {
-                    writer.breakl();
+                    writer.write_ln();
                 } else {
-                    writer.output.push(' ');
+                    writer.write(' ');
                 }
-                writer.output.push_str("{\n");
+                writer.write_str("{\n");
                 writer.indent += 1;
             }
             "}" => {
-                writer.output.push_str("}");
+                writer.write_str("}");
                 writer.indent -= 1;
             }
             "typedef_expression" => {
                 let next_kind = next_sibling_kind(&child);
                 write_typedef_expression(&child, writer)?;
-                writer.output.push(';');
+                writer.write(';');
 
                 if next_kind != "" {
-                    writer.breakl();
+                    writer.write_ln();
                 }
             }
             "comment" => write_comment(&child, writer)?,
@@ -83,8 +83,8 @@ pub fn write_typeset(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
             }
         }
     }
-    writer.output.push(';');
-    writer.breakl();
+    writer.write(';');
+    writer.write_ln();
 
     Ok(())
 }
@@ -97,7 +97,7 @@ fn write_typedef_expression(node: &Node, writer: &mut Writer) -> anyhow::Result<
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "function" => writer.output.push_str("function "),
+            "function" => writer.write_str("function "),
             "type" => write_type(&child, writer)?,
             "dimension" => write_dimension(&child, writer, false)?,
             "fixed_dimension" => write_fixed_dimension(&child, writer, false)?,

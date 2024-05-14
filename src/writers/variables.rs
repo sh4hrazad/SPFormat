@@ -31,7 +31,7 @@ pub fn write_global_variable_declaration(node: &Node, writer: &mut Writer) -> an
             }
             "variable_storage_class" | "visibility" => {
                 write_node(&child, writer)?;
-                writer.output.push(' ');
+                writer.write(' ');
                 type_length += node_len(&child) + 1;
             }
             // "identifier" => {
@@ -41,7 +41,7 @@ pub fn write_global_variable_declaration(node: &Node, writer: &mut Writer) -> an
             "comment" => {
                 write_comment(&child, writer)?;
                 if max_name_length > 0 {
-                    writer.output.push_str(" ".repeat(type_length).as_str());
+                    writer.write_str(" ".repeat(type_length).as_str());
                 }
             }
             "variable_declaration" => write_variable_declaration(&child, writer, max_name_length)?,
@@ -49,20 +49,20 @@ pub fn write_global_variable_declaration(node: &Node, writer: &mut Writer) -> an
                 if max_name_length > 0 {
                     let next_kind = next_sibling_kind(&child);
                     if next_kind == "comment" {
-                        writer.output.push_str(",");
+                        writer.write_str(",");
                     } else {
-                        writer.output.push_str(",\n");
-                        writer.output.push_str(" ".repeat(type_length).as_str());
+                        writer.write_str(",\n");
+                        writer.write_str(" ".repeat(type_length).as_str());
                     }
                 } else {
-                    writer.output.push_str(", ")
+                    writer.write_str(", ")
                 }
             }
             ";" => continue,
             _ => println!("Unexpected kind {} in write_global_variable.", kind),
         }
     }
-    writer.output.push(';');
+    writer.write(';');
 
     insert_break(&node, writer);
 
@@ -81,7 +81,7 @@ pub fn write_type(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     write_node(&node, writer)?;
     if next_kind != "dimension" && next_kind != "fixed_dimension" {
         // Don't add a space if the next sibling is a dimension or a fixed dimension.
-        writer.output.push(' ')
+        writer.write(' ')
     };
 
     Ok(())
@@ -175,7 +175,7 @@ pub fn write_variable_declaration_statement(
             }
             "variable_storage_class" | "variable_visibility" => {
                 write_node(&child, writer)?;
-                writer.output.push(' ');
+                writer.write(' ');
                 type_length += node_len(&child) + 1;
             }
             "comment" => {
@@ -184,7 +184,7 @@ pub fn write_variable_declaration_statement(
                     if do_indent {
                         writer.write_indent();
                     }
-                    writer.output.push_str(" ".repeat(type_length).as_str());
+                    writer.write_str(" ".repeat(type_length).as_str());
                 }
             }
             "dimension" => write_dimension(&child, writer, true)?,
@@ -193,16 +193,16 @@ pub fn write_variable_declaration_statement(
                 if max_name_length > 0 {
                     let next_kind = next_sibling_kind(&child);
                     if next_kind == "comment" {
-                        writer.output.push_str(",");
+                        writer.write_str(",");
                     } else {
-                        writer.output.push_str(",\n");
+                        writer.write_str(",\n");
                         if do_indent {
                             writer.write_indent();
                         }
-                        writer.output.push_str(" ".repeat(type_length).as_str());
+                        writer.write_str(" ".repeat(type_length).as_str());
                     }
                 } else {
-                    writer.output.push_str(", ")
+                    writer.write_str(", ")
                 }
             }
             _ => println!("Unexpected kind {} in write_variable_variable.", kind),
@@ -252,7 +252,7 @@ fn write_variable_declaration(
                 //         .output
                 //         .push_str(" ".repeat(max_name_length - name_length).as_str());
                 // }
-                writer.output.push_str(" = ");
+                writer.write_str(" = ");
             }
             "dynamic_array" => write_dynamic_array(&child, writer)?,
             _ => {
