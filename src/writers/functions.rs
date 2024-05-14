@@ -72,8 +72,8 @@ pub fn write_function_definition(node: Node, writer: &mut Writer) -> anyhow::Res
             "function_definition_type" => write_function_visibility(&child, writer)?,
             "type" => write_type(&child, writer)?,
             "dimension" => write_dimension(child, writer, true)?,
-            "argument_declarations" => write_argument_declarations(child, writer)?,
-            "symbol" => write_node(&child, writer)?,
+            "parameter_declarations" => write_argument_declarations(child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             _ => write_node(&child, writer)?,
         }
     }
@@ -113,7 +113,7 @@ fn write_argument_declaration(node: Node, writer: &mut Writer) -> anyhow::Result
         match child.kind().borrow() {
             "const" => writer.output.push_str("const "),
             "argument_type" => write_argument_type(child, writer)?,
-            "symbol" => write_node(&child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "dimension" => write_dimension(child, writer, true)?,
             "fixed_dimension" => {
                 let next_kind = next_sibling_kind(&child);

@@ -118,7 +118,7 @@ fn get_max_variable_name_length(node: &Node) -> anyhow::Result<usize> {
                 for sub_child in child.children(&mut sub_cursor) {
                     let sub_kind = sub_child.kind();
                     match sub_kind.borrow() {
-                        "symbol" => name_length += node_len(&sub_child),
+                        "identifier" => name_length += node_len(&sub_child),
                         "dimension" => name_length += 2,
                         "fixed_dimension" => name_length += node_len(&sub_child),
                         _ => continue,

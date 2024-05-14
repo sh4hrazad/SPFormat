@@ -26,7 +26,7 @@ pub fn write_methodmap(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
         let kind = child.kind();
         match kind.borrow() {
             "methodmap" => writer.output.push_str("methodmap "),
-            "symbol" => write_node(&child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "<" => writer.output.push_str(" < "),
             "__nullable__" => writer.output.push_str(" __nullable__ "),
             "{" => {
@@ -80,7 +80,7 @@ fn write_methodmap_alias(node: Node, writer: &mut Writer) -> anyhow::Result<()> 
         let kind = child.kind();
         match kind.borrow() {
             "public" => writer.output.push_str("public "),
-            "~" | "(" | ")" | "symbol" => write_node(&child, writer)?,
+            "~" | "(" | ")" | "identifier" => write_node(&child, writer)?,
             "=" => writer.output.push_str(" = "),
             ";" => continue,
             _ => println!("Unexpected kind {} in write_alias_declaration.", kind),
@@ -116,7 +116,7 @@ fn write_methodmap_native(node: Node, writer: &mut Writer) -> anyhow::Result<()>
             "type" => write_type(&child, writer)?,
             "(" | ")" | "symbol" | "~" => write_node(&child, writer)?,
             "=" => writer.output.push_str(" = "),
-            "argument_declarations" => write_argument_declarations(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(child, writer)?,
             ";" => continue,
             _ => println!("Unexpected kind {} in write_methodmap_native.", kind),
         }
@@ -151,7 +151,7 @@ fn write_methodmap_method(node: Node, writer: &mut Writer) -> anyhow::Result<()>
             "type" => write_type(&child, writer)?,
             "(" | ")" | "symbol" | "~" => write_node(&child, writer)?,
             "=" => writer.output.push_str(" = "),
-            "argument_declarations" => write_argument_declarations(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(child, writer)?,
             "block" => {
                 if writer.settings.brace_wrapping_before_function {
                     writer.breakl();
@@ -205,7 +205,7 @@ fn write_methodmap_property(node: Node, writer: &mut Writer) -> anyhow::Result<(
                 writer.indent -= 1;
             }
             "=" => writer.output.push_str(" = "),
-            "argument_declarations" => write_argument_declarations(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(child, writer)?,
             "methodmap_property_alias" => write_methodmap_property_alias(child, writer)?,
             "methodmap_property_method" | "methodmap_property_native" => {
                 write_methodmap_property_method(child, writer)?
@@ -238,7 +238,7 @@ fn write_methodmap_property_alias(node: Node, writer: &mut Writer) -> anyhow::Re
         match kind.borrow() {
             "public" => writer.output.push_str("public "),
             "methodmap_property_getter" => writer.output.push_str("get()"),
-            "symbol" => write_node(&child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "=" => writer.output.push_str(" = "),
             ";" => continue,
             _ => println!(
@@ -276,7 +276,7 @@ fn write_methodmap_property_method(node: Node, writer: &mut Writer) -> anyhow::R
             }
             "methodmap_property_getter" => writer.output.push_str("get()"),
             "methodmap_property_setter" => write_methodmap_property_setter(child, writer)?,
-            "symbol" => write_node(&child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "=" => writer.output.push_str(" = "),
             "block" => {
                 if writer.settings.brace_wrapping_before_function {

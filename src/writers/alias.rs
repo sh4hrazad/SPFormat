@@ -34,7 +34,7 @@ pub fn write_alias_declaration(node: Node, writer: &mut Writer) -> anyhow::Resul
             "old_type" => write_old_type(child, writer)?,
             "dimension" => write_dimension(child, writer, true)?,
             "alias_operator" | "operator" => write_node(&child, writer)?,
-            "argument_declarations" => write_argument_declarations(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(child, writer)?,
             "block" => {
                 if writer.settings.brace_wrapping_before_function {
                     writer.breakl();
@@ -79,11 +79,11 @@ pub fn write_alias_assignment(node: Node, writer: &mut Writer) -> anyhow::Result
             "function_definition_type" => write_function_visibility(&child, writer)?,
             "type" => write_type(&child, writer)?,
             "old_type" => write_old_type(child, writer)?,
-            "symbol" => write_node(&child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "dimension" => write_dimension(child, writer, true)?,
             "=" => writer.output.push_str(" = "),
             "alias_operator" | "operator" => write_node(&child, writer)?,
-            "argument_declarations" => write_argument_declarations(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(child, writer)?,
             ";" => writer.output.push(';'),
             _ => {
                 if writer.is_statement(&kind) {

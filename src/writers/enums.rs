@@ -3,7 +3,8 @@ use std::borrow::Borrow;
 use tree_sitter::Node;
 
 use super::{
-    expressions::write_expression, prev_sibling_kind, write_fixed_dimension, write_node, Writer,
+    expressions::write_expression, prev_sibling_kind, write_comment, write_fixed_dimension,
+    write_node, Writer,
 };
 
 pub fn write_enum(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
@@ -62,6 +63,7 @@ fn write_enum_entries(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
                 writer.indent -= 1;
             }
             "enum_entry" => write_enum_entry(child, writer)?,
+            "comment" => write_comment(&child, writer)?,
             "," => continue,
             _ => {
                 if writer.is_expression(&kind) {

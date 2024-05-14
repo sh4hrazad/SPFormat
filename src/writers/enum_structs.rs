@@ -104,7 +104,7 @@ fn write_enum_struct_method(node: Node, writer: &mut Writer) -> anyhow::Result<(
         match kind.borrow() {
             "type" => write_type(&child, writer)?,
             "identifier" => write_node(&child, writer)?,
-            "argument_declarations" => write_argument_declarations(child, writer)?,
+            "parameter_declarations" => write_argument_declarations(child, writer)?,
             "block" => {
                 if writer.settings.brace_wrapping_before_function {
                     writer.breakl();

@@ -72,7 +72,6 @@ fn write_struct_field_value(node: Node, writer: &mut Writer) -> anyhow::Result<(
                 writer.output.push('\t');
                 write_comment(&sub_node, writer)?;
             }
-            // "symbol" => {
             "identifier" => {
                 if key {
                     key = false;
@@ -107,7 +106,7 @@ pub fn write_struct(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
                 write_comment(&sub_node, writer)?;
             }
             "struct" => writer.output.push_str("struct "),
-            "symbol" => write_node(&sub_node, writer)?,
+            "identifier" => write_node(&sub_node, writer)?,
             "{" => {
                 writer.indent += 1;
                 writer.output.push_str("\n{\n");
@@ -136,7 +135,7 @@ fn write_struct_field(node: Node, writer: &mut Writer) -> anyhow::Result<()> {
             "public" => writer.output.push_str("public "),
             "const" => writer.output.push_str("const "),
             "type" => write_node(&sub_node, writer)?,
-            "symbol" => {
+            "identifier" => {
                 writer.output.push(' ');
                 write_node(&sub_node, writer)?;
             }

@@ -100,7 +100,7 @@ fn should_break_declaration(node: &Node) -> anyhow::Result<bool> {
                 for sub_child in child.children(&mut sub_cursor) {
                     let sub_kind = sub_child.kind();
                     match sub_kind.borrow() {
-                        "symbol" => name_length += node_len(&sub_child),
+                        "identifier" => name_length += node_len(&sub_child),
                         "dimension" => name_length += 2,
                         "fixed_dimension" => name_length += node_len(&sub_child),
                         _ => continue,
@@ -211,7 +211,7 @@ fn write_old_variable_declaration(node: Node, writer: &mut Writer) -> anyhow::Re
             "old_type" => write_old_type(child, writer)?,
             "dimension" => write_dimension(child, writer, false)?,
             "fixed_dimension" => write_fixed_dimension(child, writer, false)?,
-            "symbol" => write_node(&child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "=" => writer.output.push_str(" = "),
             _ => {
                 if writer.is_expression(&kind) {

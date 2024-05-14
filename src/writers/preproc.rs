@@ -105,7 +105,7 @@ pub fn write_preproc_undefine(node: &Node, writer: &mut Writer) -> anyhow::Resul
     for child in node.children(&mut cursor) {
         let kind = child.kind();
         match kind.borrow() {
-            "symbol" => write_node(&child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "#undef" => writer.output.push_str("#undef "),
             _ => println!("Unexpected kind {} in write_preproc_undefine.", kind),
         }
@@ -162,7 +162,7 @@ pub fn write_preproc_generic(node: &Node, writer: &mut Writer) -> anyhow::Result
 pub fn write_preproc_symbol(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
     let kind = node.kind();
     match kind.borrow() {
-        "preproc_endif" | "preproc_else" | "preproc_endinput" | "symbol" => {
+        "preproc_endif" | "preproc_else" | "preproc_endinput" | "identifier" => {
             write_node(&node, writer)?
         }
         _ => println!("Unexpected kind {} in write_preproc_symbol.", kind),

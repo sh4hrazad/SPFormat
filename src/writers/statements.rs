@@ -364,7 +364,7 @@ fn write_switch_case_values(node: Node, writer: &mut Writer) -> anyhow::Result<(
         let kind = child.kind();
         match kind.borrow() {
             "comment" => write_comment(&child, writer)?,
-            "symbol" => write_node(&child, writer)?,
+            "identifier" => write_node(&child, writer)?,
             "," => writer.output.push_str(", "),
             _ => {
                 if writer.is_expression(&kind) {
