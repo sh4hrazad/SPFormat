@@ -81,9 +81,7 @@ fn write_struct_field_value(node: &Node, writer: &mut Writer) -> anyhow::Result<
             "identifier" => {
                 if key {
                     key = false;
-                    writer
-                        .output
-                        .push_str(writer.indent_string.repeat(writer.indent).as_str());
+                    writer.write_str(writer.indent_string.repeat(writer.indent).as_str());
                     write_node(&sub_node, writer)?;
                 } else {
                     key = true;
@@ -130,9 +128,7 @@ pub fn write_struct(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
 }
 
 fn write_struct_field(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
-    writer
-        .output
-        .push_str(writer.indent_string.repeat(writer.indent).as_str());
+    writer.write_str(writer.indent_string.repeat(writer.indent).as_str());
 
     let mut cursor = node.walk();
     for sub_node in node.children(&mut cursor) {

@@ -35,9 +35,7 @@ pub fn write_old_global_variable_declaration(
             "comment" => {
                 write_comment(&child, writer)?;
                 if should_break {
-                    writer
-                        .output
-                        .push_str(" ".repeat(declarator_length).as_str());
+                    writer.write_str(" ".repeat(declarator_length).as_str());
                 }
             }
             "old_variable_declaration" => write_old_variable_declaration(&child, writer)?,
@@ -48,9 +46,7 @@ pub fn write_old_global_variable_declaration(
                         writer.write_str(",");
                     } else {
                         writer.write_str(",\n");
-                        writer
-                            .output
-                            .push_str(" ".repeat(declarator_length).as_str());
+                        writer.write_str(" ".repeat(declarator_length).as_str());
                     }
                 } else {
                     writer.write_str(", ")
@@ -161,9 +157,7 @@ pub fn write_old_variable_declaration_statement(
                     if do_indent {
                         writer.write_indent();
                     }
-                    writer
-                        .output
-                        .push_str(" ".repeat(declarator_length).as_str());
+                    writer.write_str(" ".repeat(declarator_length).as_str());
                 }
             }
             "," => {
@@ -176,9 +170,7 @@ pub fn write_old_variable_declaration_statement(
                         if do_indent {
                             writer.write_indent();
                         }
-                        writer
-                            .output
-                            .push_str(" ".repeat(declarator_length).as_str());
+                        writer.write_str(" ".repeat(declarator_length).as_str());
                     }
                 } else {
                     writer.write_str(", ")

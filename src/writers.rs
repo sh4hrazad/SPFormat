@@ -3,7 +3,7 @@ use std::{
     collections::HashSet,
 };
 
-use tree_sitter::{Language, Node, Point};
+use tree_sitter::{Node, Point};
 
 use crate::settings::Settings;
 
@@ -29,7 +29,7 @@ pub mod variables;
 pub struct Writer<'a> {
     pub output: String,
     pub source: &'a [u8],
-    pub language: &'a Language,
+    // pub language: &'a Language,
     pub indent: usize,
     pub indent_string: String,
     pub skip: u8,
@@ -150,9 +150,7 @@ fn write_fixed_dimension(
 }
 
 fn write_node(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
-    writer
-        .output
-        .push_str(node.utf8_text(writer.source)?.borrow());
+    writer.write_str(node.utf8_text(writer.source)?.as_ref());
 
     Ok(())
 }

@@ -34,7 +34,7 @@ pub fn format_string_language(
     let mut writer = writers::Writer {
         output: String::new(),
         source: input.as_bytes(),
-        language: &language,
+        // language: &language,
         indent: 0,
         indent_string,
         skip: 0,

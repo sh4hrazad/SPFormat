@@ -63,9 +63,7 @@ pub fn write_source_file(root_node: Node, writer: &mut Writer) -> anyhow::Result
             | "preproc_warning" | "preproc_assert" => write_preproc_generic(&node, writer)?,
             _ => {
                 println!("Unexpected kind {} in write_source_file.", kind);
-                writer
-                    .output
-                    .push_str(node.utf8_text(writer.source)?.borrow());
+                writer.write_str(node.utf8_text(writer.source)?.borrow());
             }
         };
     }

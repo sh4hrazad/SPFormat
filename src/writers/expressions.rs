@@ -49,9 +49,7 @@ fn write_old_type_cast(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
 }
 
 pub fn write_old_type(node: &Node, writer: &mut Writer) -> anyhow::Result<()> {
-    writer
-        .output
-        .push_str(node.utf8_text(writer.source)?.borrow());
+    writer.write_str(node.utf8_text(writer.source)?.borrow());
     writer.write(' ');
 
     Ok(())
